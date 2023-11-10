@@ -16,6 +16,7 @@ public:
 	sf::TcpSocket* tcpSocket;
 	sf::UdpSocket* udpSocket;
 	unsigned short UDPPort = 54000;
+	bool createdPlayer = false;
 };
 
 class GameServer

@@ -52,15 +52,7 @@ void GameServer::setupConnections() // set up TCP and UDP connections
 				std::string welcomeMessage = "Welcome to the server!";
 				sf::Packet welcomePacket;
 				welcomePacket << welcomeMessage;
-				if (clients.size() > 1)
-				{
-//					globalTCPSend(welcomePacket);
-					newClient->tcpSocket->send(welcomePacket);
-				}
-				else
-				{
-					newClient->tcpSocket->send(welcomePacket);
-				}
+				newClient->tcpSocket->send(welcomePacket);
 			}
 			else
 			{
@@ -88,8 +80,13 @@ void GameServer::setupConnections() // set up TCP and UDP connections
 				}
 
 				// Create a new Player and add it to the players vector
-				Player newPlayer(survivorPosition, 0, i); // You can set the initial score to 0
-				players.push_back(newPlayer);
+				if(clients[i].createdPlayer == false)
+				{
+					Player newPlayer(survivorPosition, 0, i); // You can set the initial score to 0
+					players.push_back(newPlayer);
+					clients[i].createdPlayer = true;
+				}
+				
 			}
 		}
 	}
@@ -112,6 +109,14 @@ void GameServer::globalTCPSend(sf::Packet packet)
 		{
 			printf("Global Send Error: Failed to send to client &i", clients[i]);
 		}
+	}
+}
+
+void GameServer::TCPSend(sf::TcpSocket& tcpSocket, sf::Packet packet)
+{
+	if (tcpSocket.send(packet) != sf::Socket::Done)
+	{
+		printf("TCP Send Error: Failed to send to client");
 	}
 }
 
@@ -139,6 +144,25 @@ sf::Packet GameServer::receiveTCPPacket(sf::TcpSocket& tcpSocket, int id)
 	}
 
 	return sf::Packet(packet);
+}
+
+void GameServer::globalUDPSend(sf::Packet packet)
+{
+	for (int i = 0; i < clients.size(); i++)
+	{
+		if (clients[i].udpSocket->send(packet, "localhost", clients[i].UDPPort) != sf::Socket::Status::Done)
+		{
+			printf("Global Send Error: Failed to send to client");
+		}
+	}
+}
+
+void GameServer::UDPSend(sf::UdpSocket& udpSocket, sf::Packet packet)
+{
+	if (udpSocket.send(packet, "localhost", udpSocket.getLocalPort()) != sf::Socket::Status::Done)
+	{
+		printf("UDP Send Error: Failed to send to client");
+	}
 }
 
 sf::Packet GameServer::receiveUDPPacket(sf::UdpSocket& udpSocket, int id)
