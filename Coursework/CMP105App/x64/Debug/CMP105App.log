@@ -1,5 +1,2 @@
-﻿  Main.cpp
-D:\University\Year_3\CMP303\CMP303_Networking\Coursework\CMP105App\Main.cpp(96,41): warning C4353: nonstandard extension used: constant 0 as function expression.  Use '__noop' function intrinsic instead
-  NewLevel.cpp
-  Generating Code...
+﻿  NewLevel.cpp
   CMP105App.vcxproj -> D:\University\Year_3\CMP303\CMP303_Networking\Coursework\x64\Debug\CMP105App.exe

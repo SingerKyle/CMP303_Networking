@@ -69,6 +69,7 @@ void NewLevel::render()
 	window->draw(score);
 	//window->draw(Player);
 	window->draw(MySurvivor);
+	window->draw(Player2);
 	//window->draw(Health);
 	endDraw();
 }
@@ -95,4 +96,14 @@ void NewLevel::scoreOverlay()
 sf::Vector2f NewLevel::getSurvivorPos()
 {
 	return MySurvivor.getPosition();
+}
+
+void NewLevel::setSurvivorPos(sf::Vector2f pos)
+{
+	MySurvivor.setPosition(pos);
+}
+
+void NewLevel::updatePlayersPos(sf::Vector2f pos)
+{
+	Player2.setPosition(pos);
 }

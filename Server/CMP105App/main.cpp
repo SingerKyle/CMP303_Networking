@@ -77,12 +77,8 @@ int main()
 
 	while (true)
 	{
-
-
 		//std::cout << "HELLO!" << std::endl;
 		server->setupConnections();
-
-
 	}
 
 }

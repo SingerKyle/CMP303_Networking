@@ -36,12 +36,13 @@ public:
 	void TCPSend(sf::TcpSocket& tcpSocket, sf::Packet packet);
 	sf::Packet receiveTCPPacket(sf::TcpSocket& tcpSocket, int id);
 	//UDP
-	void globalUDPSend(sf::Packet packet);
+	void globalUDPSend(sf::Packet packet, int id);
 	void UDPSend(sf::UdpSocket& udpSocket, sf::Packet packet);
 	sf::Packet receiveUDPPacket(sf::UdpSocket& udpSocket, int id);
 
 	//Game Functions
 	void handleSurvivorPos(sf::Vector2f& position, int id);
+	sf::Vector2f GenerateStartPos();
 protected:
 	// Variables
 	sf::TcpListener Listener;
@@ -49,7 +50,7 @@ protected:
 
 	// keep track of clients
 	//std::vector<sf::TcpSocket*> clients;
-	std::vector<Client> clients;
+	std::vector<Client*> clients;
 
 	struct Player
 	{

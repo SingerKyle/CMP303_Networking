@@ -5,6 +5,8 @@ Survivor::Survivor()
 	setSize(sf::Vector2f(100, 100));
 	setPosition(2000, 2000);
 	setFillColor(sf::Color::White);
+
+
 }
 
 Survivor::~Survivor()

@@ -84,7 +84,8 @@ int main()
 	udpSocket.setBlocking(false);
 	sf::Socket::Status status = socket.connect("Localhost", 53000);
 	if (status != sf::Socket::Done)
-	{		printf("Error!");
+	{
+		printf("Error!");
 	}
 
 	std::string data = "skibbidy!";
@@ -148,6 +149,17 @@ int main()
 	sf::Clock sendClock; // Clock to keep track of time for sending survivor position
 	sf::Time sendInterval = sf::seconds(2); // Send survivor position every 10 milliseconds
 
+
+
+	sf::Packet survivorPositionPacket;
+	if (socket.receive(survivorPositionPacket) == sf::Socket::Status::Done)
+	{
+		sf::Vector2f startPos;
+		survivorPositionPacket >> startPos.x >> startPos.y;
+		newlevel.setSurvivorPos(startPos);
+		survivorPositionPacket.clear();
+	}
+
 	// Game Loop
 	while (window.isOpen())
 	{
@@ -157,12 +169,13 @@ int main()
 		// Calculate delta time. How much time has passed 
 		// since it was last calculated (in seconds) and restart the clock.
 		deltaTime = clock.restart().asSeconds();
+		
 
 		// Send survivor position every 10 milliseconds
 		if (sendClock.getElapsedTime() >= sendInterval && gameState.getCurrentState() == State::LEVEL)
 		{
 			sf::Vector2f survivorPosition = newlevel.getSurvivorPos();
-			std::cout << survivorPosition.x << " " << survivorPosition.y << std::endl;
+			std::cout << "my position: " << survivorPosition.x << " " << survivorPosition.y << std::endl;
 			sf::Packet positionPacket;
 			positionPacket << survivorPosition.x << survivorPosition.y;
 
@@ -170,6 +183,21 @@ int main()
 			{
 				std::cerr << "Failed to send survivor position via UDP" << std::endl;
 				// Handle the error as needed
+			}
+
+			sf::Packet broadcastPosition;
+			sf::IpAddress senderIpAddress;
+			unsigned short senderPort;
+			if (udpSocket.receive(broadcastPosition, senderIpAddress, senderPort) != sf::Socket::Status::Done)
+			{
+				std::cout << "error" << std::endl;
+			}
+			else
+			{
+				sf::Vector2f otherPlayerPos;
+				broadcastPosition >> otherPlayerPos.x >> otherPlayerPos.y;
+				std::cout << "Other Player Position: " << otherPlayerPos.x << " " << otherPlayerPos.y << std::endl;
+				newlevel.updatePlayersPos(otherPlayerPos);
 			}
 
 			sendClock.restart(); // Restart the clock for the next interval

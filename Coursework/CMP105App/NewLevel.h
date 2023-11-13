@@ -22,7 +22,8 @@ public:
 	void TimerStart(); // restarts timer while not on level state or pause state
 	void scoreOverlay(); // overlays points per enemy kill
 	sf::Vector2f getSurvivorPos();
-
+	void setSurvivorPos(sf::Vector2f);
+	void updatePlayersPos(sf::Vector2f);
 private:
 	// Default functions for rendering to the screen.
 
@@ -39,6 +40,9 @@ private:
 	BackGround Ground; // background
 
 	Survivor MySurvivor;
+
+	Survivor Player2;
+
 	playerHealth Health; // health bar
 
 	EnemyManager eManager; // enemy manager

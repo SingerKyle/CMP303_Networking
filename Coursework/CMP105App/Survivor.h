@@ -39,5 +39,8 @@ protected:
 	int Health;
 	int Score;
 	sf::Vector2f velocity;
+
+	Animation idle;
+	Animation walk;
 };
 
