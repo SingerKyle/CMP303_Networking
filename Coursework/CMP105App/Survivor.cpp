@@ -5,6 +5,8 @@ Survivor::Survivor()
 	setSize(sf::Vector2f(100, 100));
 	setPosition(2000, 2000);
 	setFillColor(sf::Color::White);
+
+
 }
 
 Survivor::~Survivor()
@@ -52,6 +54,16 @@ void Survivor::collisionResponse(GameObject* collider, float dt)
 int Survivor::getScore()
 {
 	return Score;
+}
+
+int Survivor::getClientID()
+{
+	return clientID;
+}
+
+void Survivor::setClientID(int ID)
+{
+	clientID = ID;
 }
 
 void Survivor::setScore(int score)

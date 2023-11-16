@@ -32,7 +32,7 @@ lobby::~lobby()
 
 void lobby::handleInput(float dt)
 {
-	if(input->isKeyDown(sf::Keyboard::Enter))
+	if (input->isKeyDown(sf::Keyboard::Enter))
 	{
 		gameState->setCurrentState(State::LEVEL);
 	}

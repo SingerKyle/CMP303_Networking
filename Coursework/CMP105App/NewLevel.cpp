@@ -2,12 +2,15 @@
 #include <iostream>
 #include "EnemyManager.h"
 
+
 NewLevel::NewLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManager* aud)
 {
 	window = hwnd;
 	input = in;
 	gameState = gs;
 	audio = aud;
+
+	client = new Client("Localhost", 53000, otherPlayers);
 
 	// initialise game objects
 	if (!font.loadFromFile("font/Ye Olde Oak.ttf"))
@@ -56,6 +59,7 @@ void NewLevel::handleInput(float dt)
 // Update game objects
 void NewLevel::update(float dt)
 {
+	client->connections(&MySurvivor, otherPlayers);
 	MySurvivor.update(dt);
 	Back.update(dt, MySurvivor.getPosition());
 }
@@ -67,10 +71,24 @@ void NewLevel::render()
 	window->draw(Back);
 	window->draw(text);
 	window->draw(score);
-	//window->draw(Player);
 	window->draw(MySurvivor);
+	for(int i = 0; i < otherPlayers.size(); i++)
+	{
+		std::cout << otherPlayers[i].getPosition().x << " " << otherPlayers[i].getPosition().y << std::endl;
+		window->draw(otherPlayers[i]);
+	}
 	//window->draw(Health);
 	endDraw();
+}
+
+void NewLevel::readyToPlayGame()
+{
+//	if (input->isKeyDown(sf::Keyboard::Enter))
+//	{
+//		client->setReady(true);
+//		gameState->setCurrentState(State::LEVEL);
+//	}
+
 }
 
 void NewLevel::timer()
@@ -95,4 +113,9 @@ void NewLevel::scoreOverlay()
 sf::Vector2f NewLevel::getSurvivorPos()
 {
 	return MySurvivor.getPosition();
+}
+
+void NewLevel::setSurvivorPos(sf::Vector2f pos)
+{
+	MySurvivor.setPosition(pos);
 }
