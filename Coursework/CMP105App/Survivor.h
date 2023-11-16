@@ -34,10 +34,14 @@ public:
 	void setHealth(int health);//updates health
 	int getScore(); // gets current score
 	int getHealth(); // gets current health
+	int getClientID();
+	void setClientID(int ID);
 
 protected:
 	int Health;
 	int Score;
 	sf::Vector2f velocity;
+	int clientID;
+	Animation idle;
+	Animation walk;
 };
-

@@ -2,12 +2,15 @@
 #include <iostream>
 #include "EnemyManager.h"
 
+
 NewLevel::NewLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManager* aud)
 {
 	window = hwnd;
 	input = in;
 	gameState = gs;
 	audio = aud;
+
+	client = new Client("Localhost", 53000, otherPlayers);
 
 	// initialise game objects
 	if (!font.loadFromFile("font/Ye Olde Oak.ttf"))
@@ -35,29 +38,32 @@ NewLevel::NewLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManage
 	Ground.setSize(sf::Vector2f(16000, 1080));
 	Ground.setWindow(window);
 
-	MySurvivor.setInput(in);
+	MySurvivor = new Survivor();
+	MySurvivor->setInput(in);
 
 	//	eManager.EnemyManager::EnemyManager();
 
+	otherPlayers.push_back(MySurvivor);
 }
 
 NewLevel::~NewLevel()
 {
-
+	delete MySurvivor;
 }
 
 // handle user input
 void NewLevel::handleInput(float dt)
 {
-	Back.handleInput(dt, *input, MySurvivor.getPosition());
-	MySurvivor.handleInput(dt);
+	Back.handleInput(dt, *input, MySurvivor->getPosition());
+	MySurvivor->handleInput(dt);
 }
 
 // Update game objects
 void NewLevel::update(float dt)
 {
-	MySurvivor.update(dt);
-	Back.update(dt, MySurvivor.getPosition());
+	client->connections(MySurvivor/*, otherPlayers*/);
+	MySurvivor->update(dt);
+	Back.update(dt, MySurvivor->getPosition());
 }
 
 // Render level
@@ -67,10 +73,24 @@ void NewLevel::render()
 	window->draw(Back);
 	window->draw(text);
 	window->draw(score);
-	//window->draw(Player);
-	window->draw(MySurvivor);
+	window->draw(*MySurvivor);
+	for(int i = 0; i < otherPlayers.size(); i++)
+	{
+		std::cout << otherPlayers[i]->getPosition().x << " " << otherPlayers[i]->getPosition().y << std::endl;
+		window->draw(*otherPlayers[i]);
+	}
 	//window->draw(Health);
 	endDraw();
+}
+
+void NewLevel::readyToPlayGame()
+{
+//	if (input->isKeyDown(sf::Keyboard::Enter))
+//	{
+//		client->setReady(true);
+//		gameState->setCurrentState(State::LEVEL);
+//	}
+
 }
 
 void NewLevel::timer()
@@ -89,10 +109,5 @@ void NewLevel::TimerStart()
 
 void NewLevel::scoreOverlay()
 {
-	score.setString(std::to_string(MySurvivor.getScore())); // updates score by getting player score and changing value on screen
-}
-
-sf::Vector2f NewLevel::getSurvivorPos()
-{
-	return MySurvivor.getPosition();
+	score.setString(std::to_string(MySurvivor->getScore())); // updates score by getting player score and changing value on screen
 }

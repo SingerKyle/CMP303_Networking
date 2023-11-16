@@ -18,9 +18,9 @@
 #include "Win.h"
 #include "Credits.h"
 #include "SFML/Network.hpp"
-#include <iomanip>
 #include <string>
 #include <thread>
+#include "Client.h"
 
 void windowProcess(sf::RenderWindow* window, Input* in)
 {
@@ -79,53 +79,8 @@ void windowProcess(sf::RenderWindow* window, Input* in)
 
 int main()
 {
-	// Networking Setup
-	sf::TcpSocket socket;	sf::UdpSocket udpSocket;
-	udpSocket.setBlocking(false);
-	sf::Socket::Status status = socket.connect("Localhost", 53000);
-	if (status != sf::Socket::Done)
-	{		printf("Error!");
-	}
-
-	std::string data = "skibbidy!";
-	std::string udpData = "bussy!";
-	sf::Packet packet;
-	sf::Packet udppacket;
-	packet << data;
-
-	if (socket.send(packet) == sf::Socket::Done())
-	{
-		printf("Sent!");
-	}
-
-	if (udpSocket.bind(sf::Socket::AnyPort, "Localhost") != sf::Socket::Done)
-	{
-		printf("Socket did not bind\n");
-	}
-
-	udppacket << udpData;
-
-	// Send the packet to the server
-	if (udpSocket.send(udppacket, "Localhost", 54000) != sf::Socket::Done)
-	{
-		std::cerr << "Failed to send UDP packet" << std::endl;
-		// Handle the error as needed
-	}
-	else
-	{
-		std::cout << "UDP packet sent successfully" << std::endl;
-	}
-
-	sf::Packet welcomePacket;
-	if (socket.receive(welcomePacket) == sf::Socket::Status::Done)
-	{
-		std::string welcome;
-		welcomePacket >> welcome;
-		std::cout << "Received: " << welcome << std::endl;
-	}
-
 	//Create the window
-	sf::RenderWindow window(sf::VideoMode(1920, 1080), "CMP105_Coursework");//, sf::Style::Fullscreen);
+	sf::RenderWindow window(sf::VideoMode(600, 600), "CMP105_Coursework");//, sf::Style::Fullscreen);
 	//original window size = 1200, 675
 	// Initialise input and level objects.
 	AudioManager audioManager;
@@ -146,7 +101,8 @@ int main()
 	float deltaTime;
 
 	sf::Clock sendClock; // Clock to keep track of time for sending survivor position
-	sf::Time sendInterval = sf::seconds(2); // Send survivor position every 10 milliseconds
+	sf::Time sendInterval = sf::milliseconds(1000); // Send survivor position every 10 milliseconds
+
 
 	// Game Loop
 	while (window.isOpen())
@@ -157,23 +113,6 @@ int main()
 		// Calculate delta time. How much time has passed 
 		// since it was last calculated (in seconds) and restart the clock.
 		deltaTime = clock.restart().asSeconds();
-
-		// Send survivor position every 10 milliseconds
-		if (sendClock.getElapsedTime() >= sendInterval && gameState.getCurrentState() == State::LEVEL)
-		{
-			sf::Vector2f survivorPosition = newlevel.getSurvivorPos();
-			std::cout << survivorPosition.x << " " << survivorPosition.y << std::endl;
-			sf::Packet positionPacket;
-			positionPacket << survivorPosition.x << survivorPosition.y;
-
-			if (udpSocket.send(positionPacket, "Localhost", 54000) != sf::Socket::Done)
-			{
-				std::cerr << "Failed to send survivor position via UDP" << std::endl;
-				// Handle the error as needed
-			}
-
-			sendClock.restart(); // Restart the clock for the next interval
-		}
 
 		// Call standard game loop functions (input, update and render)
 
@@ -186,6 +125,7 @@ int main()
 			level.TimerStart();
 			break;
 		case State::LOBBY:
+//			newlevel.readyToPlayGame();
 			Lobby.handleInput(deltaTime);
 			Lobby.update(deltaTime);
 			Lobby.render();
@@ -194,8 +134,6 @@ int main()
 			newlevel.handleInput(deltaTime);
 			newlevel.update(deltaTime);
 			newlevel.render();
-			Death.TimerStart();
-			Win.TimerStart();
 			break;
 		case State::PAUSE:
 			pause.handleInput(deltaTime);
