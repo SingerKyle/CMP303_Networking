@@ -1,10 +1,11 @@
 #include "GameServer.h"
 
-GameServer::GameServer()
+GameServer::GameServer() : readyPlayerTrack(0), tcpPort(53000), udpPort(54000), maxPlayerCount(4)
 {
-	
+
+
 	//TCP Listen
-	if (Listener.listen(53000) != sf::Socket::Status::Done)
+	if (listener.listen(tcpPort) != sf::Socket::Status::Done)
 	{
 		printf("No Listen");
 	}
@@ -13,130 +14,204 @@ GameServer::GameServer()
 		printf("Server Listening...\n");
 	}
 
-	Listener.setBlocking(false);
-	Selector.add(Listener);
+	//Initialise UDP socket
+	udpSocket = new sf::UdpSocket();
+	// Bind and disable blocking for UDP
+	if (udpSocket->bind(udpPort) == sf::Socket::Status::Done)
+	{
+		std::cout << "Bound successfully to port " << udpPort << std::endl;
+	}
+	else
+	{
+		std::cout << "Bind Error" << std::endl;
+	}
+
+	listener.setBlocking(false);
+//	udpSocket->setBlocking(false);
+
+	selector.add(listener);
+	selector.add(*udpSocket);
+
 }
 
 void GameServer::setupConnections() // set up TCP and UDP connections
 {
-	if (Selector.wait(sf::milliseconds(100))) // wait a set amount of time to see if a new client wants to join
+	// Wait for a socket to become active / a new connection is incoming
+	if (selector.wait(sf::milliseconds(10))) 
 	{
-		if (Selector.isReady(Listener)) // if the listen socket is ready to accept new connection
+		if (selector.isReady(listener)) // if the listen socket is ready to accept new connection
 		{
-			// Create Sockets
+			// Create Socket
 			sf::TcpSocket* tcpSocket = new sf::TcpSocket;
-			sf::UdpSocket* udpSocket = new sf::UdpSocket;
+			Client* newClient = new Client(tcpSocket, new SurvivorInfo());
 
-			tcpSocket->setBlocking(false);
-			udpSocket->setBlocking(false);
-
-			Client* newClient = new Client(tcpSocket, udpSocket);
-
-			if (Listener.accept(*newClient->tcpSocket) == sf::Socket::Status::Done)
+			if (listener.accept(*newClient->tcpSocket) == sf::Socket::Status::Done)
 			{
-				std::cout << "Client Connected on: " << newClient->tcpSocket->getRemoteAddress().toString() << std::endl;
+				std::cout << "Client Connected!" << std::endl;
 
-				// Bind UDP socket to port 
-				if (newClient->udpSocket->bind(54000 + clients.size()) != sf::Socket::Status::Done)
-				{
-					printf("UDP Bind Error");
-				}
-				else
-				{
-					printf("UDP Bound\n");
-				}
-				// add to selector and vector
-				newClient->UDPPort = 54000 + clients.size();
+				tcpSocket->setBlocking(false);
+				selector.add(*tcpSocket);
+				// Give the client an ID
+				newClient->ID = allocateServerID();
 				clients.push_back(newClient);
-				Selector.add(*newClient->tcpSocket);
-				Selector.add(*newClient->udpSocket);
 
-				// Send server welcome message
-				std::string welcomeMessage = "Welcome to the server!";
-				sf::Packet welcomePacket;
-				welcomePacket << welcomeMessage;
-				TCPSend(*newClient->tcpSocket, welcomePacket);
-				//newClient->tcpSocket->send(welcomePacket);
+				// Send random start position and client ID to new client
+				sf::Packet packet;
+				code = 1;
+				newClient->survivor->position = GenerateStartPos();
+				std::cout << newClient->survivor->position.x << "   " << newClient->survivor->position.y << std::endl;
+				packet << code << newClient->ID << newClient->survivor->position.x << newClient->survivor->position.y;
+				TCPSend(*newClient->tcpSocket, packet);
 			}
-			else
+			// no point notifying one player
+			if (clients.size() > 1) // send new client info to current players
 			{
-				printf("Error! No Accept");
-				delete newClient->tcpSocket;
-				delete newClient->udpSocket;
-				delete newClient;
+				// send client data to every other client
+				sf::Packet initialpacket;
+				code = 2; // 1 = player joined
+				initialpacket << code << newClient->ID << newClient->survivor->position.x << newClient->survivor->position.y;
+				globalTCPSendMinusClient(initialpacket, newClient->ID);
+				initialpacket.clear();
+
+				for (int i = 0; i < clients.size(); i++) // send all other current players to new client
+				{
+					if (newClient->ID != clients[i]->ID)
+					{
+						code = 2;
+						std::cout << "sending data to client " << clients[i]->ID << std::endl;
+						initialpacket << code << clients[i]->ID << clients[i]->survivor->position.x << clients[i]->survivor->position.y;
+
+						TCPSend(*newClient->tcpSocket, initialpacket);
+					}
+					
+				}
 			}
 		}
 		else
 		{
 			for (int i = 0; i < clients.size(); i++)
 			{
-				sf::Packet TCPpacket;
-				sf::Packet UDPPacket;
-				sf::Packet survivorPositionPacket;
-
-				// Create a new Player and add it to the players vector
-				if (clients[i]->createdPlayer == false)
+				sf::Packet tcpPacket, udpPacket;
+				// deal with TCP receiving / sending first
+				tcpPacket = receiveTCPPacket(*clients[i]->tcpSocket);
+				if(tcpPacket != nullptr)
 				{
-					sf::Vector2f startPos = GenerateStartPos();
+					tcpPacket >> code;
+					if (code == 0)
+					{
+						
+					}
+					if (code == 1) // Server is sending UDP port
+					{
+						tcpPacket >> clients[i]->UDPPort; // client sent ID code and UDP port
+					//	std::cout << "Client " << i << " has port: " << clients[i]->UDPPort <<std::endl;
+					}
+					else if (code == 2) // clients are sending ready signal
+					{
+						bool isReadyRec;
+						tcpPacket >> isReadyRec;
+						if(isReadyRec) // if ready is true
+						{
+							clients[i]->survivor->isReady =true;
+							readyPlayerTrack++;
+							std::cout << "Player " << i << " ready!" << std::endl;
+						}
+						else
+						{
+							clients[i]->survivor->isReady = false;
+							readyPlayerTrack--;
+						}
 
-					Player newPlayer(startPos, 0, i); // You can set the initial score to 0
-					players.push_back(newPlayer);
-					clients[i]->createdPlayer = true;
+/*						if (readyPlayerTrack == clients.size())
+						{
+							sf::Packet startGamePacket;
+							int code = 3;
+							startGamePacket << code;
+							globalTCPSend(startGamePacket);
+						}*/
+					}
+					
+				}
+				// Then check UDP receiving / sending
+				udpPacket = receiveUDPPacket(*clients[i]);
+				if(udpPacket != nullptr)
+				{
+					sf::Vector2f position;
+					udpPacket >> position.x >> position.y;
 
-					survivorPositionPacket << startPos.x << startPos.y;
+					//std::cout << "Position " << i << ": " << position.x << " " << position.y << std::endl;
 
-					// Send random point to client
-					TCPSend(*clients[i]->tcpSocket, survivorPositionPacket);
-					survivorPositionPacket.clear();
-
-					//sf::Packet playerInfo;
-					//playerInfo << clients[i]->UDPPort << clients[i]->createdPlayer << i;
-					//globalTCPSend(playerInfo);
 				}
 
-				// TCP connection
-				TCPpacket = receiveTCPPacket(*clients[i]->tcpSocket, i);
-				TCPpacket.clear();
-
-				//UDP Connection
-				UDPPacket = receiveUDPPacket(*clients[i]->udpSocket, i);
-
-				
-				sf::Vector2f survivorPosition;
-				UDPPacket >> survivorPosition.x >> survivorPosition.y;
-				handleSurvivorPos(survivorPosition, i);
-
 				//Check for any disconnections
-				if (clients[i]->tcpSocket->receive(TCPpacket) == sf::Socket::Status::Disconnected)
+				if (clients[i]->tcpSocket->receive(tcpPacket) == sf::Socket::Status::Disconnected)
 				{
 					std::cout << "Client left the server" << std::endl;
-					Selector.remove(*clients[i]->tcpSocket);
-					Selector.remove(*clients[i]->udpSocket);
+					selector.remove(*clients[i]->tcpSocket);
 					disconnectClient(clients[i]);
 				}
 			}
-
 		}
 	}
 
+
+}
+
+int GameServer::allocateServerID()
+{
+	int clientID = 0;
+
+	auto findID = [&clientID](const Client* client)
+	{
+		return client->ID == clientID;
+	};
+
+	// Iterate through the vector of clients to check if ID is in use
+	while (std::find_if(clients.begin(), clients.end(), findID) != clients.end())
+	{
+		clientID++;
+	}
+
+	return clientID;
 }
 
 void GameServer::disconnectClient(Client* client)
 {
 	client->tcpSocket->disconnect();
+	selector.remove(*client->tcpSocket);
 
-	client = nullptr;
+	auto it = std::find(clients.begin(), clients.end(), client);
+
+	if (it != clients.end())
+	{
+		clients.erase(it);
+	}
+
 	delete client;
+	client = nullptr;
 }
 
 void GameServer::globalTCPSend(sf::Packet packet)
 {
 	for (int i = 0; i < clients.size(); i++)
 	{
-		sf::TcpSocket& clientSocket = *clients[i]->tcpSocket;
-		if (clientSocket.send(packet) != sf::Socket::Done)
+		if (clients[i]->tcpSocket->send(packet) != sf::Socket::Done)
 		{
-			printf("Global Send Error: Failed to send to client &i", clients[i]);
+			std::cout << "Global send failed for: " << i << std::endl;
+		}
+	}
+}
+
+void GameServer::globalTCPSendMinusClient(sf::Packet packet, int id)
+{
+	for (int i = 0; i < clients.size(); i++)
+	{
+		if (i != id)
+		{
+			if (clients[i]->tcpSocket->send(packet) != sf::Socket::Done)
+			{
+				std::cout << "Global send failed for: " << i << std::endl;
+			}
 		}
 	}
 }
@@ -149,83 +224,50 @@ void GameServer::TCPSend(sf::TcpSocket& tcpSocket, sf::Packet packet)
 	}
 }
 
-sf::Packet GameServer::receiveTCPPacket(sf::TcpSocket& tcpSocket, int id)
+sf::Packet GameServer::receiveTCPPacket(sf::TcpSocket& tcpSocket)
 {
 	sf::Packet packet;
-	std::string data;
-	if (Selector.isReady(tcpSocket))
+	if (selector.isReady(tcpSocket))
 	{
-		sf::Socket::Status status = tcpSocket.receive(packet);
-		if (status == sf::Socket::Done)
+		if (tcpSocket.receive(packet) != sf::Socket::Done)
 		{
-			packet >> data;
-			std::cout << "Data = " << data << std::endl;
+			std::cout << "TCP Failed: no receive" << std::endl;
 			return packet;
 		}
+		return packet;
 	}
-
-	return sf::Packet(packet);
+	return packet;
 }
+
 
 void GameServer::globalUDPSend(sf::Packet packet, int id)
 {
-	for (int i = 0; i < clients.size(); i++)
-	{
-		if (i != id)
-		{
-			if (clients[i]->udpSocket->send(packet, "Localhost", clients[i]->UDPPort) != sf::Socket::Status::Done)
-			{
-				printf("Global Send Error: Failed to send to client");
-			}
-		}
-	}
+
 }
 
-void GameServer::UDPSend(sf::UdpSocket& udpSocket, sf::Packet packet)
+void GameServer::UDPSend(Client& client, sf::Packet packet)
 {
-	if (udpSocket.send(packet, "Localhost", udpSocket.getLocalPort()) != sf::Socket::Status::Done)
+	if (udpSocket->send(packet, "Localhost", client.UDPPort) != sf::Socket::Done)
 	{
-		printf("UDP Send Error: Failed to send to client");
+		std::cout << "UDP Failed to send" << std::endl;
 	}
 }
 
-sf::Packet GameServer::receiveUDPPacket(sf::UdpSocket& udpSocket, int id)
+sf::Packet GameServer::receiveUDPPacket(Client& client)
 {
 	sf::Packet packet;
-	std::string data;
 	sf::Vector2f vecData;
 	sf::IpAddress senderIpAddress;
 	unsigned short senderPort;
 
-	sf::Socket::Status status = udpSocket.receive(packet, senderIpAddress, senderPort);
-	if (status == sf::Socket::Done)
+	if (selector.isReady(*udpSocket))
 	{
-	//	packet >> data;
-//		packet >> vecData.x >> vecData.y;
-
-
-//		std::cout << "Client Sent: " << data << std::endl;
-//		std::cout << "Client Sent: " << vecData.x << " " << vecData.y << std::endl;
-		clients[id]->UDPPort = senderPort;
-		return packet;
-	}
-	return sf::Packet(packet);
-}
-
-void GameServer::handleSurvivorPos(sf::Vector2f& position, int id)
-{
-	if(id < players.size())
-	{
-		if (id < players.size())
+		if (udpSocket->receive(packet, senderIpAddress, senderPort) != sf::Socket::Done)
 		{
-			players[id].startPos = position;
-			std::cout << "Client " << id << " Sent: " << position.x << " " << position.y << std::endl;
-
-			sf::Packet broadcastPositionSer;
-			broadcastPositionSer << position.x << position.y;
-			globalUDPSend(broadcastPositionSer, id);
+			std::cout << "UDP Failed: no receive" << std::endl;
 		}
 	}
+	return packet;
 }
 
 sf::Vector2f GameServer::GenerateStartPos()

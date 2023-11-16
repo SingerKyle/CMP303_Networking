@@ -56,6 +56,16 @@ int Survivor::getScore()
 	return Score;
 }
 
+int Survivor::getClientID()
+{
+	return clientID;
+}
+
+void Survivor::setClientID(int ID)
+{
+	clientID = ID;
+}
+
 void Survivor::setScore(int score)
 {
 

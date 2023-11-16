@@ -1,21 +1,41 @@
 #pragma once
 #include "SFML/Network.hpp"
+#include <iostream>
 #include <string>
+#include "SFML/Network.hpp"
+#include "Survivor.h"
 
 class Client
 {
 public:
-    Client();
+    Client(std::string serverAddress, unsigned short serverPort, std::vector<Survivor>& survivors);
     ~Client();
 
-    bool connectToServer(const std::string& serverAddress, unsigned short serverPort);
-    void update();
-    void sendPacket(sf::Packet& packet);
-    void receivePacket(sf::Packet& packet);
+    // Function to connect to the server
+    void connections(Survivor* s, std::vector<Survivor>&);
 
-private:
+    // Functions to send and receive packets
+    void sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet);
+    void sendUDPPacket(sf::UdpSocket& udpSocket, sf::Packet& packet);
+    sf::Packet receiveTCPPacket(sf::TcpSocket& tcpSocket);
+    sf::Packet receiveUDPPacket(sf::UdpSocket& udpSocket);
+    std::vector<Survivor*> survivors;
+protected:
+    // Selector for sockets
+    sf::SocketSelector selector;
+
+    int clientID;
+
+    // Sockets
     sf::TcpSocket tcpSocket;
     sf::UdpSocket udpSocket;
+    //UDP Variables
+    sf::IpAddress serverAddress;
+    unsigned short serverPort;
+    
+    
 
-    // Add any other necessary members
+    // Add vector for players
+    std::vector<Survivor>& levelSurvivors;
+    
 };

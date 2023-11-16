@@ -8,6 +8,7 @@
 #include "Survivor.h"
 #include "BackGround.h"
 #include "EnemyManager.h"
+#include "Client.h"
 
 class NewLevel : BaseLevel 
 {
@@ -18,12 +19,12 @@ public:
 	void handleInput(float dt) override;
 	void update(float dt);
 	void render();
+	void readyToPlayGame();
 	void timer(); // updates on screen timer 
 	void TimerStart(); // restarts timer while not on level state or pause state
 	void scoreOverlay(); // overlays points per enemy kill
 	sf::Vector2f getSurvivorPos();
 	void setSurvivorPos(sf::Vector2f);
-	void updatePlayersPos(sf::Vector2f);
 private:
 	// Default functions for rendering to the screen.
 
@@ -41,12 +42,14 @@ private:
 
 	Survivor MySurvivor;
 
-	Survivor Player2;
-
 	playerHealth Health; // health bar
 
 	EnemyManager eManager; // enemy manager
 
 	sf::Texture back_Texture;
+//NETWORK
+	Client* client;
+
+	std::vector<Survivor> otherPlayers;
 };
 
