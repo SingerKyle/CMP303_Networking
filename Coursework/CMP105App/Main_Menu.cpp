@@ -1,5 +1,9 @@
 #include "Main_Menu.h"
 
+// access state pointer
+// update state
+//currentstate has star
+
 Main_Menu::Main_Menu(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManager* aud)
 {
 	window = hwnd;
@@ -51,7 +55,7 @@ void Main_Menu::handleInput(float dt)
 {
 	if (input->isKeyDown(sf::Keyboard::Escape))
 	{
-		window->close();
+	//	currentState =
 	}
 }
 

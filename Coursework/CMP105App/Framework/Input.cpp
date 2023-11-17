@@ -1,137 +1,143 @@
 #include "Input.h"
 
-Input::Input()
+InputManager::InputManager(sf::RenderWindow* hwnd)
 {
-	// set default values
-	mouse.left = MouseState::UP;
-	mouse.right = MouseState::UP;
-	mouse.x = 0;
-	mouse.y = 0;
+	window = hwnd;
 }
 
-void Input::setKeyDown(int key)
+InputManager::~InputManager()
+{
+}
+
+// Update events
+void InputManager::UpdateEvents()
+{
+	sf::Event event;
+
+	while (window->pollEvent(event))
+	{
+		switch (event.type)
+		{
+		case sf::Event::Closed :
+			window->close();
+			break;
+		case sf::Event::Resized :
+			window->setView(sf::View(sf::FloatRect(0, 0, (float)event.size.width, (float)event.size.height)));
+			break;
+		case sf::Event::KeyPressed :
+			setKey(event.key.code, true);
+			break;
+		case sf::Event::KeyReleased :
+			setKey(event.key.code, false);
+			break;
+		case sf::Event::MouseMoved :
+			setMousePosition(sf::Vector2i(event.mouseMove.x, event.mouseMove.y));
+			break;
+		case sf::Event::MouseButtonPressed :
+			if (event.mouseButton.button == sf::Mouse::Left)
+				setMouseLeft(true);
+			if (event.mouseButton.button == sf::Mouse::Right)
+				setMouseRight(true);
+			break;
+		case sf::Event::MouseButtonReleased :
+			if (event.mouseButton.button == sf::Mouse::Left)
+				setMouseLeft(false);
+			if (event.mouseButton.button == sf::Mouse::Right)
+				setMouseRight(false);
+			break;
+		case sf::Event::TextEntered:
+			if (event.text.unicode == '\b' && userInput.size() > 0)
+				userInput.erase(userInput.size() - 1, 1);
+			else if (event.text.unicode != '\b')
+				userInput += event.text.unicode;
+			break;
+		}
+	}
+}
+
+//-----------------------
+// Setters
+//-----------------------
+
+// Set whether specific key is pressed
+void InputManager::setKey(int key, bool isPressed)
 {
 	if (key >= 0)
-	{
-		keys[key] = true;
-	}
+		keys[key] = isPressed;
 }
 
-void Input::setKeyUp(int key)
+// Mouse x
+void InputManager::setMouseX(int x)
 {
-	if (key >= 0)
-	{
-		keys[key] = false;
-	}
+	mouse.x = x;
 }
 
-bool Input::isKeyDown(int key)
+// Mouse y
+void InputManager::setMouseY(int y)
 {
-	if (key >= 0)
-	{
-		return keys[key];
-	}
-	return false;
+	mouse.y = y;
 }
 
-bool Input::isPressed(int key)
+// Mouse vector position
+void InputManager::setMousePosition(sf::Vector2i xy)
 {
-	bool cond = isKeyDown(key);
-	if (cond)
-	{
-		pressed.push_back(key);
-		return cond;
-	}
-	return false;
+	mouse.x = xy.x;
+	mouse.y = xy.y;
 }
 
-void Input::update()
+// Mouse left
+void InputManager::setMouseLeft(bool isPressed)
 {
-	for (int i = 0; i < pressed.size(); i++)
-	{
-		setKeyUp(pressed[i]);
-	}
-	pressed.clear();
-
-	if (mouse.left == MouseState::PRESSED)
-	{
-		mouse.left = MouseState::UP;
-	}
-	if (mouse.right == MouseState::PRESSED)
-	{
-		mouse.right = MouseState::UP;
-	}
+	mouse.left = isPressed;
 }
 
-void Input::setMouseX(int lx)
+// Mouse right
+void InputManager::setMouseRight(bool isPressed)
 {
-	mouse.x = lx;
+	mouse.right = isPressed;
 }
 
-void Input::setMouseY(int ly)
+//-----------------------
+// Getters
+//-----------------------
+
+// Is key pressed
+bool InputManager::getKey(int key)
 {
-	mouse.y = ly;
+	return keys[key];
 }
 
-void Input::setMousePosition(int lx, int ly)
-{
-	setMouseX(lx);
-	setMouseY(ly);
-}
-
-int Input::getMouseX()
+// Mouse x
+int InputManager::getMouseX()
 {
 	return mouse.x;
 }
 
-int Input::getMouseY()
+// Mouse y
+int InputManager::getMouseY()
 {
 	return mouse.y;
 }
 
-void Input::setLeftMouse(MouseState state)
+// Vector mouse
+sf::Vector2i InputManager::getMousePosition()
 {
-	mouse.left = state;
-}
-bool Input::isLeftMouseDown()
-{
-	if (mouse.left == MouseState::DOWN || mouse.left == MouseState::PRESSED)
-	{
-		return true;
-	}
-	return false;
+	return sf::Vector2i(mouse.x, mouse.y);
 }
 
-bool Input::isLeftMousePressed()
+// Mouse left
+bool InputManager::getMouseLeft()
 {
-	if (mouse.left == MouseState::DOWN || mouse.left == MouseState::PRESSED)
-	{
-		mouse.left = MouseState::PRESSED;
-		return true;
-	}
-	return false;
+	return mouse.left;
 }
 
-void Input::setRightMouse(MouseState state)
+// Mouse right
+bool InputManager::getMouseRight()
 {
-	mouse.right = state;
-}
-bool Input::isRightMouseDown()
-{
-	if (mouse.right == MouseState::DOWN || mouse.right == MouseState::PRESSED)
-	{
-		return true;
-	}
-	return false;
+	return mouse.right;
 }
 
-bool Input::isRightMousePressed()
+std::string InputManager::getUserInput()
 {
-	if (mouse.right == MouseState::DOWN || mouse.right == MouseState::PRESSED)
-	{
-		mouse.right = MouseState::PRESSED;
-		return true;
-	}
-	return false;
+	return userInput;
 }
-

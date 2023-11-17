@@ -1,52 +1,46 @@
-// Input class
-// Class stores the current state on keyboard and mouse input.
-// Store which keys are pressed or released, mouse position and mouse button presses.
-// @author Paul Robertson
-
 #pragma once
-#include <vector>
+#include <SFML\Graphics.hpp>
 
-class Input
+class InputManager
 {
 public:
-	enum class MouseState { UP, DOWN, PRESSED };
-private:
-	// Mouse structure, store mouse relevant information
-	
+	InputManager(sf::RenderWindow* hwnd);
+	~InputManager();
 
+	void UpdateEvents();
+
+	//-----------------------
+	// Setters
+	//-----------------------
+	void setKey(int key, bool isPressed);
+	void setMouseX(int x);
+	void setMouseY(int y);
+	void setMousePosition(sf::Vector2i xy);
+	void setMouseLeft(bool isPressed);
+	void setMouseRight(bool isPressed);
+
+	//-----------------------
+	// Getters
+	//-----------------------
+	bool getKey(int key);
+	int getMouseX();
+	int getMouseY();
+	sf::Vector2i getMousePosition();
+	bool getMouseLeft();
+	bool getMouseRight();
+
+	std::string getUserInput();
+
+private:
 	struct Mouse
 	{
 		int x, y;
-		MouseState left, right;
+		bool left, right;
 	};
-	
 
-public:
-	Input();
-	// Functions for setting key as pressed, released and checking current state.
-	void setKeyDown(int key);
-	void setKeyUp(int key);
-	bool isKeyDown(int key);
-	bool isPressed(int key);
-	void update();
+	sf::RenderWindow* window;
 
-	// Functions are mouse input, including getting and setting current position and mouse button presses.
-	void setMouseX(int lx);
-	void setMouseY(int ly);
-	void setMousePosition(int lx, int ly);
-	int getMouseX();
-	int getMouseY();
-	void setLeftMouse(MouseState state);
-	bool isLeftMouseDown();
-	bool isLeftMousePressed();
-	void setRightMouse(MouseState state);
-	bool isRightMouseDown();
-	bool isRightMousePressed();
-	
-private:
-	// Array of booleans representing keys (pressed = true, released = false)
 	bool keys[256]{ false };
-	std::vector<int> pressed;
-	// Mouse variable
 	Mouse mouse;
+	std::string userInput;
 };

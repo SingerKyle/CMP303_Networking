@@ -176,11 +176,13 @@
     <ClCompile Include="Framework\SoundObject.cpp" />
     <ClCompile Include="Framework\TileMap.cpp" />
     <ClCompile Include="Framework\VectorHelper.cpp" />
-    <ClCompile Include="GameServer.cpp" />
+    <ClCompile Include="GameStateManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Main_Menu.cpp" />
+    <ClCompile Include="NetworkHandler.cpp" />
     <ClCompile Include="NewLevel.cpp" />
     <ClCompile Include="playerHealth.cpp" />
+    <ClCompile Include="State.cpp" />
     <ClCompile Include="Survivor.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -203,11 +205,13 @@
     <ClInclude Include="Framework\SoundObject.h" />
     <ClInclude Include="Framework\TileMap.h" />
     <ClInclude Include="Framework\VectorHelper.h" />
-    <ClInclude Include="GameServer.h" />
+    <ClInclude Include="GameStateManager.h" />
     <ClInclude Include="Main_Menu.h" />
     <ClInclude Include="Menu_Background.h" />
+    <ClInclude Include="NetworkHandler.h" />
     <ClInclude Include="NewLevel.h" />
     <ClInclude Include="playerHealth.h" />
+    <ClInclude Include="State.h" />
     <ClInclude Include="Survivor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

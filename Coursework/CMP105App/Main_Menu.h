@@ -11,10 +11,11 @@
 #include "Buttons.h"
 #include "ControlsButton.h"
 #include "ExitButton.h"
+#include "State.h"
 
 class Main_Menu : BaseLevel {
 public:
-	Main_Menu(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManager* aud);
+	Main_Menu(sf::RenderWindow* hwnd, InputManager* in, State* currentState, AudioManager* aud);
 	~Main_Menu();
 
 	void handleInput(float dt) override;
@@ -46,5 +47,7 @@ private:
 
 	ExitButton Exit;
 	sf::Texture ExitButton;
+
+	State* currentState;
 };
 
