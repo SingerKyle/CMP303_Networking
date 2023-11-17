@@ -40,7 +40,7 @@ GameServer::GameServer() : readyPlayerTrack(0), tcpPort(53000), udpPort(53000), 
 void GameServer::setupConnections() // set up TCP and UDP connections
 {
 	// Wait for a socket to become active / a new connection is incoming
-	if (selector.wait(sf::milliseconds(10))) 
+	if (selector.wait(sf::milliseconds(1))) 
 	{
 		if (selector.isReady(listener)) // if the listen socket is ready to accept new connection
 		{
@@ -147,10 +147,10 @@ void GameServer::setupConnections() // set up TCP and UDP connections
 				sf::Vector2f position;
 				udpPacket >> clients[i]->survivor->ID >> position.x >> position.y;
 				clients[i]->survivor->position = position;
-
+				//std::cout << clients[i]->survivor->position.x << "   " << clients[i]->survivor->ID << std::endl;
 				sf::Packet udpSendPacket;
 				udpSendPacket << clients[i]->survivor->ID << position.x << position.y;
-				globalUDPSendMinusClient(udpPacket, i);
+				globalUDPSendMinusClient(udpPacket, clients[i]->survivor->ID);
 
 				//Check for any disconnections
 				if (clients[i]->tcpSocket->receive(tcpPacket) == sf::Socket::Status::Disconnected)
@@ -228,10 +228,13 @@ void GameServer::globalTCPSendMinusClient(sf::Packet packet, int id)
 
 void GameServer::TCPSend(sf::TcpSocket& tcpSocket, sf::Packet packet)
 {
-	if (tcpSocket.send(packet) != sf::Socket::Done)
-	{
-		printf("TCP Send Error: Failed to send to client");
-	}
+//	if (selector.isReady(listener))
+//	{
+		if (tcpSocket.send(packet) != sf::Socket::Done)
+		{
+			printf("TCP Send Error: Failed to send to client");
+		}
+//	}
 }
 
 sf::Packet GameServer::receiveTCPPacket(sf::TcpSocket& tcpSocket)

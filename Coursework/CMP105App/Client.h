@@ -21,7 +21,7 @@ public:
     sf::Packet receiveUDPPacket(sf::UdpSocket& udpSocket);
     Survivor* getSurvivorID(int ID);
 
-protected:
+public:
     // Selector for sockets
     sf::SocketSelector selector;
 

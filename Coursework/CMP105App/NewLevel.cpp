@@ -38,7 +38,7 @@ NewLevel::NewLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManage
 	Ground.setSize(sf::Vector2f(16000, 1080));
 	Ground.setWindow(window);
 
-	MySurvivor = new Survivor();
+	MySurvivor = new Survivor(client);
 	MySurvivor->setInput(in);
 
 	//	eManager.EnemyManager::EnemyManager();
@@ -76,7 +76,7 @@ void NewLevel::render()
 	window->draw(*MySurvivor);
 	for(int i = 0; i < otherPlayers.size(); i++)
 	{
-		std::cout << otherPlayers[i]->getPosition().x << " " << otherPlayers[i]->getPosition().y << std::endl;
+//		std::cout << otherPlayers[i]->getPosition().x << " " << otherPlayers[i]->getPosition().y << std::endl;
 		window->draw(*otherPlayers[i]);
 	}
 	//window->draw(Health);

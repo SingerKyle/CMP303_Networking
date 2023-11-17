@@ -7,13 +7,11 @@ Client::Client(std::string serverAddress, unsigned short serverPort, std::vector
 	{
 		std::cout << "Error connecting to server (TCP)" << std::endl;
 	}
-	tcpSocket.setBlocking(false);
 
 	if (udpSocket.bind(sf::Socket::AnyPort, serverAddress) != sf::Socket::Status::Done)
 	{
 		std::cout << "Error connecting to server (UDP)" << std::endl;
 	}
-	udpSocket.setBlocking(false);
 
 	// send UDP port to server
 	sf::Packet packet;
@@ -23,6 +21,8 @@ Client::Client(std::string serverAddress, unsigned short serverPort, std::vector
 	sendTCPPacket(tcpSocket, packet);
 	std::cout << "Sent Port " << udpSocket.getLocalPort() << " to server" << std::endl;
 
+	tcpSocket.setBlocking(false);
+	udpSocket.setBlocking(false);
 	selector.add(tcpSocket);
 	selector.add(udpSocket);
 }
@@ -49,6 +49,7 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 					int ID;
 					sf::Vector2f pos;
 					tcpPacket >> ID >> pos.x >> pos.y;
+					s->setClientID(ID);
 					s->setPosition(pos);
 					std::cout << pos.x << "			" << pos.y << std::endl;
 				}
@@ -58,7 +59,7 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 					sf::Vector2f pos;
 					std::cout << "New Player!" << std::endl;
 					tcpPacket >> ID >> pos.x >> pos.y;
-					Survivor* survivor = new Survivor();
+					Survivor* survivor = new Survivor(nullptr);
 					survivor->setPosition(pos);
 					survivor->setClientID(ID);
 					levelSurvivors.push_back(survivor);
@@ -79,11 +80,11 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 			udpPacket >> pos.x >> pos.y;
 
 			Survivor* survivor = getSurvivorID(ID);
-			survivor->setPosition(pos);
-
-			sf::Packet sendPacket;
-			sendPacket << survivor->getPosition().x << survivor->getPosition().y;
-			sendUDPPacket(udpSocket, sendPacket);
+			if (survivor != nullptr)
+			{
+				//std::cout << "WORKS!" << std::endl;
+				survivor->setPosition(pos);
+			}
 		}
 	}
 	
@@ -150,4 +151,5 @@ Survivor* Client::getSurvivorID(int ID) // searches each survivor for the ID pro
 			return levelSurvivors[i];
 		}
 	}
+	return nullptr;
 }

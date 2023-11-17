@@ -2,10 +2,12 @@
 #include "Framework/GameObject.h"
 #include "Framework/Animation.h"
 
+class Client;
+
 class Survivor : public GameObject
 {
 public:
-	Survivor();
+	Survivor(Client* client);
 	~Survivor();
 
 	//Variables
@@ -44,4 +46,9 @@ protected:
 	int clientID;
 	Animation idle;
 	Animation walk;
+
+	// client variable
+	Client* client;
+	sf::Clock updateTimer;
+	float updateInterval; // Set your desired interval in seconds
 };

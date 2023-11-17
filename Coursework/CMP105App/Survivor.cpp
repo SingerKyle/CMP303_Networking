@@ -1,12 +1,15 @@
 #include "Survivor.h"
+#include "Client.h"
 
-Survivor::Survivor()
+Survivor::Survivor(Client* client)
 {
 	setSize(sf::Vector2f(100, 100));
 	setPosition(2000, 2000);
 	setFillColor(sf::Color::White);
 
+	this->client = client;
 
+	updateInterval = 0.4f;
 }
 
 Survivor::~Survivor()
@@ -39,6 +42,15 @@ void Survivor::handleInput(float dt)
 		velocity.y = 2.0f * scale;
 		move(0, velocity.y * dt);
 	}
+
+	if (updateTimer.getElapsedTime().asMilliseconds() >= updateInterval)
+	{
+		// send movement to server
+		sf::Packet packet;
+		packet << clientID << getPosition().x << getPosition().y;
+		client->sendUDPPacket(client->udpSocket, packet);
+	}
+	
 }
 
 void Survivor::update(float dt)

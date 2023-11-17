@@ -81,6 +81,7 @@ int main()
 {
 	//Create the window
 	sf::RenderWindow window(sf::VideoMode(600, 600), "CMP105_Coursework");//, sf::Style::Fullscreen);
+	window.setFramerateLimit(60.0f);
 	//original window size = 1200, 675
 	// Initialise input and level objects.
 	AudioManager audioManager;
@@ -95,6 +96,8 @@ int main()
 	Death Death(&window, &input, &gameState, &audioManager);
 	Win Win(&window, &input, &gameState, &audioManager);
 	Credits Credits(&window, &input, &gameState, &audioManager);
+	// networks
+
 
 	// Initialise objects for delta time
 	sf::Clock clock;
