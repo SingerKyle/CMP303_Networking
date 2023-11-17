@@ -94,6 +94,6 @@ protected: // Variables
 	int maxPlayerCount;
 
 	// Code to send so client / server knows what they're receiving
-	int code;
+//	int code;
 };
 

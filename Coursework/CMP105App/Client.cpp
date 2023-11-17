@@ -86,6 +86,10 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 				survivor->setPosition(pos);
 			}
 		}
+		else
+		{
+			std::cout << "NULL!!" << std::endl;
+		}
 	}
 	
 }
@@ -101,7 +105,7 @@ void Client::sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet)
 
 void Client::sendUDPPacket(sf::UdpSocket& udpSocket, sf::Packet& packet)
 {
-	if(udpSocket.send(packet, serverAddress, 53000) != sf::Socket::Done)
+	if(udpSocket.send(packet, serverAddress, 54000) != sf::Socket::Done)
 	{
 		std::cout << "UDP Send Error: Failed to send to server" << std::endl;
 	}
@@ -134,7 +138,7 @@ sf::Packet Client::receiveUDPPacket(sf::UdpSocket& udpSocket)
 
 		if(udpSocket.receive(packet, serverAddress, serverPort) != sf::Socket::Done)
 		{
-			std::cout << "UCP Failed: no receive" << std::endl;
+			std::cout << "UDP Failed: no receive" << std::endl;
 			return packet;
 		}
 		return packet;
