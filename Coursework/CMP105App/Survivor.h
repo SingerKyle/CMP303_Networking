@@ -50,5 +50,5 @@ protected:
 	// client variable
 	Client* client;
 	sf::Clock updateTimer;
-	float updateInterval; // Set your desired interval in seconds
+	sf::Time sendInterval = sf::milliseconds(10); // Send survivor position every 10 milliseconds
 };

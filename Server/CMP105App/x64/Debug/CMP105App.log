@@ -2,4 +2,5 @@
   GameServer.cpp
   main.cpp
   Generating Code...
+  LINK : D:\University\Year_3\CMP303\CMP303_Networking\Server\x64\Debug\CMP303App.exe not found or not built by the last incremental link; performing full link
   CMP105App.vcxproj -> D:\University\Year_3\CMP303\CMP303_Networking\Server\x64\Debug\CMP303App.exe

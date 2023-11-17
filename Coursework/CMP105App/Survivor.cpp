@@ -8,8 +8,6 @@ Survivor::Survivor(Client* client)
 	setFillColor(sf::Color::White);
 
 	this->client = client;
-
-	updateInterval = 0.4f;
 }
 
 Survivor::~Survivor()
@@ -43,12 +41,13 @@ void Survivor::handleInput(float dt)
 		move(0, velocity.y * dt);
 	}
 
-	if (updateTimer.getElapsedTime().asMilliseconds() >= updateInterval)
+	if (updateTimer.getElapsedTime().asMilliseconds() >= sendInterval.asMilliseconds())
 	{
 		// send movement to server
 		sf::Packet packet;
 		packet << clientID << getPosition().x << getPosition().y;
 		client->sendUDPPacket(client->udpSocket, packet);
+		std::cout << "sending position" << std::endl;
 	}
 	
 }

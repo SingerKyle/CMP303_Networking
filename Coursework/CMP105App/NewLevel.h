@@ -51,5 +51,9 @@ private:
 	Client* client;
 
 	std::vector<Survivor*> otherPlayers;
+
+
+	sf::Clock updateTimer;
+	sf::Time sendInterval = sf::milliseconds(10); // Send survivor position every 10 milliseconds
 };
 

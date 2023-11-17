@@ -134,7 +134,7 @@ sf::Packet Client::receiveUDPPacket(sf::UdpSocket& udpSocket)
 
 		if(udpSocket.receive(packet, serverAddress, serverPort) != sf::Socket::Done)
 		{
-			std::cout << "TCP Failed: no receive" << std::endl;
+			std::cout << "UCP Failed: no receive" << std::endl;
 			return packet;
 		}
 		return packet;
