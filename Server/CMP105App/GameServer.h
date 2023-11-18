@@ -60,7 +60,7 @@ public:
 	int allocateServerID();
 
 	void disconnectClient(Client* client);
-	void syncPlayers(float dt);
+	
 
 	//TCP
 	void globalTCPSend(sf::Packet packet);
@@ -86,6 +86,11 @@ protected: // Variables
 	//std::vector<sf::TcpSocket*> clients;
 	std::vector<Client*> clients;
 	std::vector<SurvivorInfo*> survivors;
+
+	// Setup IP and port addresses for server
+	sf::IpAddress serverIP = sf::IpAddress::getLocalAddress();
+	unsigned short tcpPort;
+	unsigned short udpPort;
 
 	// Keep track of all ready players
 	int readyPlayerTrack;

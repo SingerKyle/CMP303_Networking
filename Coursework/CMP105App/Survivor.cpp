@@ -17,6 +17,9 @@ Survivor::~Survivor()
 
 void Survivor::handleInput(float dt)
 {
+sf::Vector2f test;
+
+	test = getPosition();
 	if (input->isKeyDown(sf::Keyboard::D))
 	{
 		velocity.x = 2.0f * scale; 
@@ -41,7 +44,7 @@ void Survivor::handleInput(float dt)
 		move(0, velocity.y * dt);
 	}
 
-	if (updateTimer.getElapsedTime().asMilliseconds() >= sendInterval.asMilliseconds())
+	if (updateTimer.getElapsedTime().asMilliseconds() >= sendInterval.asMilliseconds() && test != getPosition())
 	{
 		// send movement to server
 		sf::Packet packet;

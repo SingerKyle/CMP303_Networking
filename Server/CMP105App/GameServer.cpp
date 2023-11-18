@@ -30,7 +30,7 @@ GameServer::GameServer() : readyPlayerTrack(0), maxPlayerCount(4)
 	}
 
 	listener.setBlocking(false);
-	udpSocket->setBlocking(false);
+//	udpSocket->setBlocking(false);
 
 	selector.add(listener);
 	selector.add(*udpSocket);
@@ -40,7 +40,7 @@ GameServer::GameServer() : readyPlayerTrack(0), maxPlayerCount(4)
 void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 {
 	// Wait for a socket to become active / a new connection is incoming
-	if (selector.wait(sf::milliseconds(10))) 
+	if (selector.wait(sf::microseconds(1))) 
 	{
 		if (selector.isReady(listener)) // if the listen socket is ready to accept new connection
 		{
