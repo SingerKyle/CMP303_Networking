@@ -3,12 +3,12 @@
 // TEST
 
 
-GameServer::GameServer() : readyPlayerTrack(0), tcpPort(53000), udpPort(54000), maxPlayerCount(4)
+GameServer::GameServer() : readyPlayerTrack(0), maxPlayerCount(4)
 {
 
 
 	//TCP Listen
-	if (listener.listen(tcpPort) != sf::Socket::Status::Done)
+	if (listener.listen(TCPPORT) != sf::Socket::Status::Done)
 	{
 		printf("No Listen");
 	}
@@ -20,9 +20,9 @@ GameServer::GameServer() : readyPlayerTrack(0), tcpPort(53000), udpPort(54000), 
 	//Initialise UDP socket
 	udpSocket = new sf::UdpSocket();
 	// Bind and disable blocking for UDP
-	if (udpSocket->bind(udpPort) == sf::Socket::Status::Done)
+	if (udpSocket->bind(UDPPORT) == sf::Socket::Status::Done)
 	{
-		std::cout << "Bound successfully to port " << udpPort << std::endl;
+		std::cout << "Bound successfully to port " << UDPPORT << std::endl;
 	}
 	else
 	{
@@ -37,7 +37,7 @@ GameServer::GameServer() : readyPlayerTrack(0), tcpPort(53000), udpPort(54000), 
 
 }
 
-void GameServer::setupConnections() // set up TCP and UDP connections
+void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 {
 	// Wait for a socket to become active / a new connection is incoming
 	if (selector.wait(sf::milliseconds(10))) 
@@ -53,7 +53,7 @@ void GameServer::setupConnections() // set up TCP and UDP connections
 			{
 				
 				std::cout << "Client Connected!" << std::endl;
-
+				
 				tcpSocket->setBlocking(false);
 				selector.add(*tcpSocket);
 				// Give the client an ID
@@ -145,12 +145,13 @@ void GameServer::setupConnections() // set up TCP and UDP connections
 					}
 					
 				}
+				
 				// Then check UDP receiving / sending
 				udpPacket = receiveUDPPacket(*clients[i]);
 				sf::Vector2f position;
 				udpPacket >> clients[i]->survivor->ID >> position.x >> position.y;
 				clients[i]->survivor->position = position;
-				//std::cout << clients[i]->survivor->ID << "   " << clients[i]->survivor->position.x << "   " << clients[i]->survivor->position.y << std::endl;
+				std::cout << clients[i]->survivor->ID << "   " << clients[i]->survivor->position.x << "   " << clients[i]->survivor->position.y << std::endl;
 				sf::Packet udpSendPacket;
 				udpSendPacket << clients[i]->survivor->ID << position.x << position.y;
 				globalUDPSendMinusClient(udpPacket, clients[i]->survivor->ID);

@@ -4,6 +4,10 @@
 #include <vector>
 #include <iostream>
 
+#define SERVERIP "127.0.0.1"
+#define TCPPORT 53000
+#define UDPPORT 54000
+
 // Struct for a player that will hold information being sent to and from the server
 struct SurvivorInfo
 {
@@ -52,10 +56,11 @@ public:
 	~GameServer();
 
 	void initialise();
-	void setupConnections();
+	void setupConnections(float dt);
 	int allocateServerID();
 
 	void disconnectClient(Client* client);
+	void syncPlayers(float dt);
 
 	//TCP
 	void globalTCPSend(sf::Packet packet);
@@ -81,11 +86,6 @@ protected: // Variables
 	//std::vector<sf::TcpSocket*> clients;
 	std::vector<Client*> clients;
 	std::vector<SurvivorInfo*> survivors;
-
-	// Setup IP and port addresses for server
-	sf::IpAddress serverIP = sf::IpAddress::getLocalAddress();
-	unsigned short tcpPort;
-	unsigned short udpPort;
 
 	// Keep track of all ready players
 	int readyPlayerTrack;

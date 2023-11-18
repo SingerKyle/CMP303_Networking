@@ -82,8 +82,8 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 			Survivor* survivor = getSurvivorID(ID);
 			if (survivor != nullptr)
 			{
-				//std::cout << "WORKS!" << std::endl;
-				survivor->setPosition(pos);
+				std::cout << "Position: " << pos.x << " " << pos.y << std::endl;
+				//survivor->setPosition(pos);
 			}
 		}
 		else
