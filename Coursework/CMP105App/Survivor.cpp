@@ -47,6 +47,7 @@ void Survivor::handleInput(float dt)
 		sf::Packet packet;
 		packet << clientID << getPosition().x << getPosition().y;
 		client->sendUDPPacket(client->udpSocket, packet);
+		updateTimer.restart();
 		//std::cout << "sending position" << std::endl;
 	}
 	

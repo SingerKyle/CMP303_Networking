@@ -30,7 +30,7 @@ GameServer::GameServer() : readyPlayerTrack(0), maxPlayerCount(4)
 	}
 
 	listener.setBlocking(false);
-	udpSocket->setBlocking(false);
+	//udpSocket->setBlocking(false);
 
 	selector.add(listener);
 	selector.add(*udpSocket);
@@ -148,13 +148,17 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 				
 				// Then check UDP receiving / sending
 				udpPacket = receiveUDPPacket(*clients[i]);
-				sf::Vector2f position;
-				udpPacket >> clients[i]->survivor->ID >> position.x >> position.y;
-				clients[i]->survivor->position = position;
-				std::cout << clients[i]->survivor->ID << "   " << clients[i]->survivor->position.x << "   " << clients[i]->survivor->position.y << std::endl;
-				sf::Packet udpSendPacket;
-				udpSendPacket << clients[i]->survivor->ID << position.x << position.y;
-				globalUDPSendMinusClient(udpPacket, clients[i]->survivor->ID);
+				if(udpPacket != nullptr)
+				{
+					sf::Vector2f position;
+					float gameTime;
+					udpPacket >> clients[i]->survivor->ID >> position.x >> position.y >> gameTime;
+					clients[i]->survivor->position = position;
+					//std::cout << clients[i]->survivor->ID << "   " << clients[i]->survivor->position.x << "   " << clients[i]->survivor->position.y << std::endl;
+					sf::Packet udpSendPacket;
+					udpSendPacket << clients[i]->survivor->ID << position.x << position.y;
+					globalUDPSendMinusClient(udpPacket, clients[i]->survivor->ID);
+				}
 
 				//Check for any disconnections
 				if (clients[i]->tcpSocket->receive(tcpPacket) == sf::Socket::Status::Disconnected)
@@ -167,6 +171,7 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 		}
 	}
 
+	// PREDICTION
 
 }
 

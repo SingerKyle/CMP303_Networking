@@ -8,6 +8,13 @@
 #define TCPPORT 53000
 #define UDPPORT 54000
 
+struct UDPMessage
+{
+	sf::Vector2f pos;
+	float gameTime;
+	bool isPrediction;
+};
+
 // Struct for a player that will hold information being sent to and from the server
 struct SurvivorInfo
 {
@@ -21,6 +28,7 @@ public:
 	int health;
 	sf::Vector2f position;
 	bool isReady = false;
+	std::vector<UDPMessage> receivedPackets;
 };
 
 struct Client

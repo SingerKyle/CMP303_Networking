@@ -61,7 +61,7 @@ void NewLevel::handleInput(float dt)
 // Update game objects
 void NewLevel::update(float dt)
 {
-	client->connections(MySurvivor/*, otherPlayers*/);
+	client->connections(MySurvivor/*, otherPlayers*/, dt);
 	MySurvivor->update(dt);
 	Back.update(dt, MySurvivor->getPosition());
 }

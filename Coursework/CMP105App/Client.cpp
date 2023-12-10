@@ -32,7 +32,7 @@ Client::~Client()
 
 }
 
-void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
+void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/, float dt)
 {
 	if (selector.wait(sf::milliseconds(1))) 
 	{
@@ -82,8 +82,8 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 			Survivor* survivor = getSurvivorID(ID);
 			if (survivor != nullptr)
 			{
-				std::cout << "Position: " << pos.x << " " << pos.y << std::endl;
-				//survivor->setPosition(pos);
+				//std::cout << "Position: " << pos.x << " " << pos.y << std::endl;
+				survivor->setPosition(pos);
 			}
 		}
 		else

@@ -12,7 +12,7 @@ public:
     ~Client();
 
     // Function to connect to the server
-    void connections(Survivor* s/*, std::vector<Survivor>&*/);
+    void connections(Survivor* s/*, std::vector<Survivor>&*/, float dt);
 
     // Functions to send and receive packets
     void sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet);
