@@ -43,7 +43,7 @@ NewLevel::NewLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManage
 
 	//	eManager.EnemyManager::EnemyManager();
 
-	otherPlayers.push_back(MySurvivor);
+	//otherPlayers.push_back(MySurvivor);
 }
 
 NewLevel::~NewLevel()
@@ -61,9 +61,22 @@ void NewLevel::handleInput(float dt)
 // Update game objects
 void NewLevel::update(float dt)
 {
-	client->connections(MySurvivor/*, otherPlayers*/, dt);
+	client->connections(MySurvivor/*, otherPlayers*/);
 	MySurvivor->update(dt);
 	Back.update(dt, MySurvivor->getPosition());
+
+	for (int i = 0; i < otherPlayers.size(); i++)
+	{
+		if (Collision::checkBoundingBox(MySurvivor, otherPlayers[i]))
+		{
+			MySurvivor->collisionResponse(otherPlayers[i], dt);
+		}
+		else
+		{
+			
+		}
+	}
+
 }
 
 // Render level

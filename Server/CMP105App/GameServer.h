@@ -10,9 +10,9 @@
 
 struct UDPMessage
 {
-	sf::Vector2f pos;
-	float gameTime;
-	bool isPrediction;
+	float deltaTime;
+	sf::Vector2f position;
+	bool isPredicted;
 };
 
 // Struct for a player that will hold information being sent to and from the server
@@ -42,7 +42,7 @@ public:
 	sf::TcpSocket* tcpSocket;
 	int ID;
 	unsigned short UDPPort;
-
+	float timeSinceLastMessage;
 	SurvivorInfo* survivor;
 };
 

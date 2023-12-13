@@ -5,8 +5,6 @@
 
 GameServer::GameServer() : readyPlayerTrack(0), maxPlayerCount(4)
 {
-
-
 	//TCP Listen
 	if (listener.listen(TCPPORT) != sf::Socket::Status::Done)
 	{
@@ -59,6 +57,7 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 				// Give the client an ID
 				newClient->ID = allocateServerID();
 				newClient->survivor->ID = newClient->ID;
+				newClient->timeSinceLastMessage = 0.0f;
 				clients.push_back(newClient);
 
 				// Send random start position and client ID to new client
@@ -141,23 +140,38 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 							int code = 3;
 							startGamePacket << code;
 							globalTCPSend(startGamePacket);
-						}*/
+						}*/	
 					}
 					
 				}
 				
 				// Then check UDP receiving / sending
 				udpPacket = receiveUDPPacket(*clients[i]);
-				if(udpPacket != nullptr)
+				if(udpPacket.getDataSize() > 0)
 				{
-					sf::Vector2f position;
-					float gameTime;
-					udpPacket >> clients[i]->survivor->ID >> position.x >> position.y >> gameTime;
-					clients[i]->survivor->position = position;
+					UDPMessage newMessage;
+					newMessage.isPredicted = false;
+					udpPacket >> clients[i]->survivor->ID >> newMessage.position.x >> newMessage.position.y >> newMessage.deltaTime;
+					clients[i]->survivor->position = newMessage.position;
 					//std::cout << clients[i]->survivor->ID << "   " << clients[i]->survivor->position.x << "   " << clients[i]->survivor->position.y << std::endl;
 					sf::Packet udpSendPacket;
-					udpSendPacket << clients[i]->survivor->ID << position.x << position.y;
+					udpSendPacket << clients[i]->survivor->ID << newMessage.position.x << newMessage.position.y;
 					globalUDPSendMinusClient(udpPacket, clients[i]->survivor->ID);
+
+					// check that only 3 previous packets are stored 
+					if(clients[i]->survivor->receivedPackets.size() > 2)
+					{
+						clients[i]->survivor->receivedPackets.erase(clients[i]->survivor->receivedPackets.begin()); // deletes last message
+					}
+					else
+					{
+						clients[i]->survivor->receivedPackets.push_back(newMessage);
+					}
+					clients[i]->timeSinceLastMessage = 0.0f;
+				}
+				else
+				{
+					std::cout << "NO PACKET" << std::endl;
 				}
 
 				//Check for any disconnections
@@ -172,7 +186,51 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 	}
 
 	// PREDICTION
+	if (!clients.empty())
+	{
+		for (int i = 0; i < clients.size(); i++)
+		{
+			if (clients[i]->timeSinceLastMessage > 0.5f && clients[i]->survivor->receivedPackets.size() > 2)
+			{
+				// Begin prediction
+				std::cout << "Predicting Client: " << i << std::endl;
+				// set up variables required to predict
+				UDPMessage newMessage;
+				sf::Vector2f predictedPosition;
+				sf::Vector2f distance;
+				sf::Vector2f speed;
+				float time;
 
+				// calculate time by taking the last two received packet times off each other
+				time = clients[i]->survivor->receivedPackets.back().deltaTime - clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].deltaTime;
+				// Calculate the distance travelled between the last two packets 
+				distance.x = clients[i]->survivor->receivedPackets.back().position.x - clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.x;
+				distance.y = clients[i]->survivor->receivedPackets.back().position.y - clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.y;
+				// Work out speed for predicted message - distance / time
+				speed.x = distance.x / time;
+				speed.y = distance.y / time;
+
+				// predicted position
+				predictedPosition.x = clients[i]->survivor->receivedPackets.back().position.x + (speed.x * time);
+				predictedPosition.y = clients[i]->survivor->receivedPackets.back().position.y + (speed.y * time);
+				//Add to message struct
+				newMessage.deltaTime = clients[i]->survivor->receivedPackets.back().deltaTime + dt;
+				newMessage.position = predictedPosition;
+				newMessage.isPredicted = true; // just a check to show this message may not be accurate
+				if (clients[i]->survivor->receivedPackets.size() > 2)
+				{
+					clients[i]->survivor->receivedPackets.erase(clients[i]->survivor->receivedPackets.begin()); // delete oldest packet
+				}
+				clients[i]->survivor->receivedPackets.push_back(newMessage);
+				std::cout << "Client: " << i << " Predicted Position: " << predictedPosition.x << " " << predictedPosition.y << std::endl;
+				// create packet to send to all players
+				sf::Packet packet;
+				packet << clients[i]->survivor->ID << newMessage.position.x << newMessage.position.y;
+				globalUDPSendMinusClient(packet, clients[i]->survivor->ID);
+			}
+			clients[i]->timeSinceLastMessage += dt;
+		}
+	}
 }
 
 int GameServer::allocateServerID()

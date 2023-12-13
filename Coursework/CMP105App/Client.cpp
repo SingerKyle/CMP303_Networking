@@ -32,7 +32,7 @@ Client::~Client()
 
 }
 
-void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/, float dt)
+void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 {
 	if (selector.wait(sf::milliseconds(1))) 
 	{
