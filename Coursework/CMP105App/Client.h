@@ -20,6 +20,8 @@ public:
     sf::Packet receiveTCPPacket(sf::TcpSocket& tcpSocket);
     sf::Packet receiveUDPPacket(sf::UdpSocket& udpSocket);
     Survivor* getSurvivorID(int ID);
+    void setReady(bool ready);
+    bool getGameStart(); // returns true if server sends ready message
 
 public:
     // Selector for sockets
@@ -33,12 +35,13 @@ public:
     //UDP Variables
     sf::IpAddress serverAddress;
     unsigned short serverPort;
-    
+    bool disconnect = false;
+    bool readyToStart = false;
+    bool allReady = false;
     
 
     // Add vector for players
     std::vector<Survivor*>& levelSurvivors;
-    
 };
 
 /*inline sf::Packet& operator>>(sf::Packet& packet, Survivor& survivor)

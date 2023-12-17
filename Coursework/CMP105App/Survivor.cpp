@@ -8,6 +8,12 @@ Survivor::Survivor(Client* client)
 	setFillColor(sf::Color::White);
 
 	setCollisionBox(getPosition().x, getPosition().y, 100, 100);
+	Health = 100;
+	attackClock.restart();
+	attackTimerMax = sf::seconds(1.5f);
+
+	/* initialize random seed: */
+	srand(time(NULL));
 
 	this->client = client;
 }
@@ -93,6 +99,21 @@ void Survivor::collisionResponse(GameObject* collider, float dt)
 			//std::cout << "right" << std::endl;
 			setPosition(collider->getPosition().x + getSize().x, getPosition().y);
 			stepVelocity = sf::Vector2f(0, 0);
+			
+		}
+	}
+	
+	if (attackClock.getElapsedTime().asSeconds() >= attackTimerMax.asSeconds()) // if the time that has passed in seconds is more than the max time in seconds set in constructor then restart clock
+	{
+		attackClock.restart();
+		int hitChance = rand() % 10 + 1;
+		if (hitChance > 5) // 50% chance for damage to be taken
+		{
+			setHealth(20);
+			// send message to server
+			sf::Packet packet;
+			packet << 3 << getHealth();
+			client->sendTCPPacket(client->tcpSocket, packet);
 		}
 	}
 }
@@ -100,6 +121,11 @@ void Survivor::collisionResponse(GameObject* collider, float dt)
 int Survivor::getScore()
 {
 	return Score;
+}
+
+int Survivor::getHealth()
+{
+	return Health;
 }
 
 int Survivor::getClientID()
@@ -117,9 +143,9 @@ void Survivor::setScore(int score)
 
 }
 
-void Survivor::setHealth(int health)
+void Survivor::setHealth(int value)
 {
-
+	Health -= value;
 }
 
 

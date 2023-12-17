@@ -52,6 +52,9 @@ private:
 
 	std::vector<Survivor*> otherPlayers;
 
+	// Chat messages
+	std::string message;
+	bool isTyping = false;
 
 	sf::Clock updateTimer;
 	sf::Time sendInterval = sf::milliseconds(10); // Send survivor position every 10 milliseconds

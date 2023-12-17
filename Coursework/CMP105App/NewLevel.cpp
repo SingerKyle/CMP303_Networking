@@ -56,6 +56,8 @@ void NewLevel::handleInput(float dt)
 {
 	Back.handleInput(dt, *input, MySurvivor->getPosition());
 	MySurvivor->handleInput(dt);
+
+	
 }
 
 // Update game objects
@@ -77,6 +79,10 @@ void NewLevel::update(float dt)
 		}
 	}
 
+	if(client->disconnect == true)
+	{
+		gameState->setCurrentState(State::MENU);
+	}
 }
 
 // Render level
@@ -98,12 +104,15 @@ void NewLevel::render()
 
 void NewLevel::readyToPlayGame()
 {
-//	if (input->isKeyDown(sf::Keyboard::Enter))
-//	{
-//		client->setReady(true);
-//		gameState->setCurrentState(State::LEVEL);
-//	}
-
+	if (input->isKeyDown(sf::Keyboard::Enter))
+	{
+		client->setReady(true);
+	}
+	if (client->getGameStart() == true)
+	{
+		gameState->setCurrentState(State::LEVEL);
+	}
+	client->connections(MySurvivor);
 }
 
 void NewLevel::timer()

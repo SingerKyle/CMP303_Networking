@@ -57,6 +57,7 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 				// Give the client an ID
 				newClient->ID = allocateServerID();
 				newClient->survivor->ID = newClient->ID;
+				newClient->survivor->health = 100;
 				newClient->timeSinceLastMessage = 0.0f;
 				clients.push_back(newClient);
 
@@ -107,7 +108,7 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 				tcpPacket = receiveTCPPacket(*clients[i]->tcpSocket);
 				if(tcpPacket != nullptr)
 				{
-					int code;
+					int code = 0;
 					tcpPacket >> code;
 					if (code == 0)
 					{
@@ -128,19 +129,31 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 							readyPlayerTrack++;
 							std::cout << "Player " << i << " ready!" << std::endl;
 						}
-						else
-						{
-							clients[i]->survivor->isReady = false;
-							readyPlayerTrack--;
-						}
 
-/*						if (readyPlayerTrack == clients.size())
+						std::cout << readyPlayerTrack << " " << clients.size() << std::endl;
+
+						if (readyPlayerTrack >= clients.size())
 						{
+							std::cout << "Players ready" << std::endl;
 							sf::Packet startGamePacket;
-							int code = 3;
+							code = 4;
 							startGamePacket << code;
 							globalTCPSend(startGamePacket);
-						}*/	
+						}
+					}
+					else if (code == 3)
+					{
+						int health;
+						tcpPacket >> health;
+						clients[i]->survivor->health = health;
+						std::cout << "Player " << i << " is Damaged" << std::endl;
+						if (health <= 0)
+						{
+							std::cout << "Player " << i << " is Dead" << std::endl;
+							sf::Packet packet;
+							packet << 3 << clients[i]->survivor->ID;
+							TCPSend(*clients[i]->tcpSocket, packet);
+						}
 					}
 					
 				}
@@ -180,6 +193,7 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 					std::cout << "Client left the server" << std::endl;
 					selector.remove(*clients[i]->tcpSocket);
 					disconnectClient(clients[i]);
+					readyPlayerTrack--;
 				}
 			}
 		}

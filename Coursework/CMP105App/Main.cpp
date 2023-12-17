@@ -98,7 +98,6 @@ int main()
 //	Credits Credits(&window, &input, &gameState, &audioManager);
 	// networks
 
-
 	// Initialise objects for delta time
 	sf::Clock clock;
 	float deltaTime;
@@ -110,6 +109,8 @@ int main()
 	// Game Loop
 	while (window.isOpen())
 	{
+		window.clear();
+		
 		//Process window events
 		windowProcess(&window, &input);
 
@@ -128,7 +129,7 @@ int main()
 //			level.TimerStart();
 			break;
 		case State::LOBBY:
-//			newlevel.readyToPlayGame();
+			newlevel.readyToPlayGame();
 			Lobby.handleInput(deltaTime);
 			Lobby.update(deltaTime);
 			Lobby.render();

@@ -1,5 +1,7 @@
 #include "Client.h"
 
+#include "NewLevel.h"
+
 Client::Client(std::string serverAddress, unsigned short serverPort, std::vector<Survivor*>& survivors) :serverAddress(serverAddress), serverPort(serverPort), levelSurvivors(survivors)
 {
 
@@ -25,6 +27,7 @@ Client::Client(std::string serverAddress, unsigned short serverPort, std::vector
 	udpSocket.setBlocking(false);
 	selector.add(tcpSocket);
 	selector.add(udpSocket);
+
 }
 
 Client::~Client()
@@ -64,6 +67,17 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 					survivor->setClientID(ID);
 					levelSurvivors.push_back(survivor);
 				}
+				else if (code == 3) // someone died
+				{
+					int ID;
+					tcpPacket >> ID;
+					std::cout << ID << " Has died" << std::endl;
+					//levelSurvivors.erase(levelSurvivors.begin() + ID);
+				}
+				else if (code == 4) // Receiving data about game start
+					{
+					allReady = true;
+					}
 			}
 		}
 	}
@@ -91,7 +105,7 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 			std::cout << "NULL!!" << std::endl;
 		}
 	}
-	
+
 }
 
 void Client::sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet)	
@@ -120,6 +134,7 @@ sf::Packet Client::receiveTCPPacket(sf::TcpSocket& tcpSocket)
 		if (tcpSocket.receive(packet) != sf::Socket::Done)
 		{
 			std::cout << "TCP Failed: no receive" << std::endl;
+			disconnect = true;
 			return packet;
 		}
 		return packet;
@@ -156,4 +171,27 @@ Survivor* Client::getSurvivorID(int ID) // searches each survivor for the ID pro
 		}
 	}
 	return nullptr;
+}
+
+void Client::setReady(bool ready)
+{
+	if (ready == true && readyToStart == false)
+	{
+		readyToStart = true;
+		sf::Packet packet;
+		packet << 2 << true;
+		sendTCPPacket(tcpSocket, packet);
+	}
+}
+
+bool Client::getGameStart()
+{
+	if(allReady == true)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
