@@ -101,6 +101,9 @@ protected: // Variables
 	// Define max players
 	int maxPlayerCount;
 
+	// Timer
+	sf::Time timer;
+
 	// Code to send so client / server knows what they're receiving
 //	int code;
 };

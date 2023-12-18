@@ -57,7 +57,7 @@ void NewLevel::handleInput(float dt)
 	Back.handleInput(dt, *input, MySurvivor->getPosition());
 	MySurvivor->handleInput(dt);
 
-	
+		
 }
 
 // Update game objects

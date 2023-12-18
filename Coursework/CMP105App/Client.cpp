@@ -44,7 +44,7 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 			sf::Packet tcpPacket = receiveTCPPacket(tcpSocket);
 			if (tcpPacket != nullptr)
 			{
-				int code;
+				int code = 0;
 				tcpPacket >> code;
 				std::cout << code << std::endl;
 				if (code == 1) // Receiving data from server about yourself

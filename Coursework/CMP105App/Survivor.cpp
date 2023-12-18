@@ -51,12 +51,14 @@ void Survivor::handleInput(float dt)
 
 	if (updateTimer.getElapsedTime().asMilliseconds() >= sendInterval.asMilliseconds())
 	{
-		// send movement to server
-		sf::Packet packet;
-		packet << clientID << getPosition().x << getPosition().y << dt;
-		client->sendUDPPacket(client->udpSocket, packet);
-		updateTimer.restart();
-		//std::cout << "sending position" << std::endl;
+		if ((rand() % 100) < 60) {
+			// send movement to server
+			sf::Packet packet;
+			packet << clientID << getPosition().x << getPosition().y << dt;
+			client->sendUDPPacket(client->udpSocket, packet);
+			updateTimer.restart();
+			//std::cout << "sending position" << std::endl;
+		}
 	}
 	
 }
@@ -75,13 +77,13 @@ void Survivor::collisionResponse(GameObject* collider, float dt)
 	{
 		if ((colliderCentre.y - Centre.y) > 0 && inair == false) // if the y value is larger than 0 it's a top collision
 		{
-			//std::cout << "Top" << std::endl;
+			std::cout << "Top" << std::endl;
 			setPosition(getPosition().x, collider->getPosition().y - getSize().y + 5);
 			stepVelocity = sf::Vector2f(0, 0);
 		}
 		else if ((colliderCentre.y - Centre.y) < 0 && getVelocity().y <= 0) // if the y value is less than 0 it's a bottom collision
 		{
-			//std::cout << "Bottom" << std::endl;
+			std::cout << "Bottom" << std::endl;
 			setPosition(getPosition().x, collider->getPosition().y + getSize().y - 5);
 			stepVelocity = sf::Vector2f(0, 0);
 		}
@@ -90,13 +92,13 @@ void Survivor::collisionResponse(GameObject* collider, float dt)
 	{
 		if ((colliderCentre.x - Centre.x) > 0 && getVelocity().y >= 0)
 		{
-			//std::cout << "left" << std::endl;
+			std::cout << "left" << std::endl;
 			setPosition(collider->getPosition().x - getSize().x, getPosition().y);
 			stepVelocity = sf::Vector2f(0, 0);
 		}
 		else if ((colliderCentre.x - Centre.x) < 0 && getVelocity().y >= 0)
 		{
-			//std::cout << "right" << std::endl;
+			std::cout << "right" << std::endl;
 			setPosition(collider->getPosition().x + getSize().x, getPosition().y);
 			stepVelocity = sf::Vector2f(0, 0);
 			
