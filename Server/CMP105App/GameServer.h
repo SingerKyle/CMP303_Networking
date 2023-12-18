@@ -68,7 +68,7 @@ public:
 	int allocateServerID();
 
 	void disconnectClient(Client* client);
-	void syncPlayers(float dt);
+	Client* getClientID(int ID);
 
 	//TCP
 	void globalTCPSend(sf::Packet packet);
@@ -103,6 +103,7 @@ protected: // Variables
 
 	// Timer
 	sf::Time timer;
+	float elapsedTime;
 
 	// Code to send so client / server knows what they're receiving
 //	int code;

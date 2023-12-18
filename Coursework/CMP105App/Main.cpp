@@ -129,7 +129,7 @@ int main()
 //			level.TimerStart();
 			break;
 		case State::LOBBY:
-			newlevel.readyToPlayGame();
+			newlevel.readyToPlayGame(deltaTime);
 			Lobby.handleInput(deltaTime);
 			Lobby.update(deltaTime);
 			Lobby.render();

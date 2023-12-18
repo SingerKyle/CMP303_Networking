@@ -19,7 +19,7 @@ public:
 	void handleInput(float dt) override;
 	void update(float dt);
 	void render();
-	void readyToPlayGame();
+	void readyToPlayGame(float dt);
 	void timer(); // updates on screen timer 
 	void TimerStart(); // restarts timer while not on level state or pause state
 	void scoreOverlay(); // overlays points per enemy kill

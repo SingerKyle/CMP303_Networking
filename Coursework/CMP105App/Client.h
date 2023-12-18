@@ -12,7 +12,7 @@ public:
     ~Client();
 
     // Function to connect to the server
-    void connections(Survivor* s/*, std::vector<Survivor>&*/);
+    void connections(Survivor* s, float dt);
 
     // Functions to send and receive packets
     void sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet);
@@ -22,6 +22,7 @@ public:
     Survivor* getSurvivorID(int ID);
     void setReady(bool ready);
     bool getGameStart(); // returns true if server sends ready message
+    float getElapsedTime();
 
 public:
     // Selector for sockets
@@ -38,7 +39,7 @@ public:
     bool disconnect = false;
     bool readyToStart = false;
     bool allReady = false;
-    
+    float elapsedTime = 0;
 
     // Add vector for players
     std::vector<Survivor*>& levelSurvivors;

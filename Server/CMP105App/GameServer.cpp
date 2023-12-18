@@ -164,23 +164,27 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 				{
 					UDPMessage newMessage;
 					newMessage.isPredicted = false;
-					udpPacket >> clients[i]->survivor->ID >> newMessage.position.x >> newMessage.position.y >> newMessage.deltaTime;
-					clients[i]->survivor->position = newMessage.position;
+					int ID;
+					udpPacket >> ID >> newMessage.position.x >> newMessage.position.y >> newMessage.deltaTime;
+
+					Client* client = getClientID(ID);
+
+					client->survivor->position = newMessage.position;
 					//std::cout << i << " " <<clients[i]->survivor->ID << "   " << clients[i]->survivor->position.x << "   " << clients[i]->survivor->position.y << std::endl;
 					sf::Packet udpSendPacket;
-					udpSendPacket << clients[i]->survivor->ID << newMessage.position.x << newMessage.position.y;
-					globalUDPSendMinusClient(udpPacket, clients[i]->survivor->ID);
+					udpSendPacket << client->survivor->ID << newMessage.position.x << newMessage.position.y;
+					globalUDPSendMinusClient(udpPacket, client->survivor->ID);
 
 					// check that only 3 previous packets are stored 
-					if(clients[i]->survivor->receivedPackets.size() > 2)
+					if (client->survivor->receivedPackets.size() > 2)
 					{
-						clients[i]->survivor->receivedPackets.erase(clients[i]->survivor->receivedPackets.begin()); // deletes oldest message
+						client->survivor->receivedPackets.erase(client->survivor->receivedPackets.begin()); // deletes oldest message
 					}
 					else
 					{
-						clients[i]->survivor->receivedPackets.push_back(newMessage);
+						client->survivor->receivedPackets.push_back(newMessage);
 					}
-					clients[i]->timeSinceLastMessage = 0.0f;
+					client->timeSinceLastMessage = 0.0f;
 				}
 				else
 				{
@@ -204,8 +208,15 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 	{
 		for (int i = 0; i < clients.size(); i++)
 		{
-			if (clients[i]->timeSinceLastMessage > 0.05 && clients[i]->survivor->receivedPackets.size() > 2)
+			if (clients[i]->timeSinceLastMessage > 0.08 && clients[i]->survivor->receivedPackets.size() > 2)
 			{
+				//std::cout << i << " " << clients[i]->survivor->receivedPackets.back().position.x << "  " << clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.x << std::endl;
+				//std::cout << i << " " << clients[i]->survivor->receivedPackets.back().position.y << "  " << clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.y << std::endl;
+				//Check if two positions are the same - if yes why predict?
+				if (clients[i]->survivor->receivedPackets.back().position == clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position)
+				{
+					break; // positions are the same - client is probably not moving right now.
+				}
 				// Begin prediction
 				//std::cout << "Predicting Client: " << i << std::endl;
 				// set up variables required to predict
@@ -217,35 +228,29 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 
 				// calculate time by taking the last two received packet times off each other
 				time = clients[i]->survivor->receivedPackets.back().deltaTime - clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].deltaTime;
+				time = abs(time);
 				// Calculate the distance travelled between the last two packets 
-				distance.x = clients[i]->survivor->receivedPackets.back().position.x - clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.x;
-				distance.y = clients[i]->survivor->receivedPackets.back().position.y - clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.y;
-				
-			
-				
-				// Work out speed for predicted message - distance / time
-				if (time != 0)
-				{
-					speed.x = distance.x / time;
-					speed.y = distance.y / time;
+				distance.x = (clients[i]->survivor->receivedPackets.back().position.x - clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.x);
+				distance.y = (clients[i]->survivor->receivedPackets.back().position.y - clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.y);
 
-					// predicted position
-					predictedPosition.x = clients[i]->survivor->receivedPackets.back().position.x + (speed.x * time);
-					predictedPosition.y = clients[i]->survivor->receivedPackets.back().position.y + (speed.y * time);
-				}
-				else // if time = 0 predict without speed - not as good 
-				{
-					predictedPosition.x = (clients[i]->survivor->receivedPackets.back().position.x + clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.x) / 2.0f;
-					predictedPosition.y = (clients[i]->survivor->receivedPackets.back().position.y + clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].position.y) / 2.0f;
-				}
+				//std::cout << "packet times " << clients[i]->survivor->receivedPackets.back().deltaTime << "  " << clients[i]->survivor->receivedPackets[clients[i]->survivor->receivedPackets.size() - 2].deltaTime << std::endl;
+				//std::cout << "Time val " << time << std::endl;
+
+				// Work out speed for predicted message - distance / time
+				speed.x = distance.x;
+				speed.y = distance.y;
+
+				// predicted position
+				predictedPosition.x = clients[i]->survivor->receivedPackets.back().position.x + speed.x * dt;
+				predictedPosition.y = clients[i]->survivor->receivedPackets.back().position.y + speed.y * dt;
+				
 
 				
 				//Add to message struct
 				newMessage.deltaTime = clients[i]->survivor->receivedPackets.back().deltaTime;
 				newMessage.position = predictedPosition;
 				newMessage.isPredicted = true; // just a check to show this message may not be accurate
-				
-				std::cout << "Client: " << i << " Predicted Position: " << predictedPosition.x << " " << predictedPosition.y << std::endl;
+				//std::cout << "Client: " << i << " Predicted Position: " << predictedPosition.x << " " << predictedPosition.y << std::endl;
 				// create packet to send to all players
 				sf::Packet packet;
 				packet << clients[i]->survivor->ID << newMessage.position.x << newMessage.position.y;
@@ -254,6 +259,8 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 			clients[i]->timeSinceLastMessage += dt;
 		}
 	}
+
+	elapsedTime += dt;
 }
 
 int GameServer::allocateServerID()
@@ -288,6 +295,17 @@ void GameServer::disconnectClient(Client* client)
 
 	delete client;
 	client = nullptr;
+}
+
+Client* GameServer::getClientID(int ID)
+{
+	for (int i = 0; i < clients.size(); i++)
+	{
+		if (clients[i]->survivor->ID == ID)
+		{
+			return clients[i];
+		}
+	}
 }
 
 void GameServer::globalTCPSend(sf::Packet packet)

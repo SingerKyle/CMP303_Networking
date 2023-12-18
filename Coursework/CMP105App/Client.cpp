@@ -35,8 +35,10 @@ Client::~Client()
 
 }
 
-void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
+void Client::connections(Survivor* s, float dt)
 {
+	elapsedTime += dt;
+	
 	if (selector.wait(sf::milliseconds(1))) 
 	{
 		if (selector.isReady(tcpSocket)) 
@@ -77,6 +79,7 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 				else if (code == 4) // Receiving data about game start
 					{
 					allReady = true;
+					elapsedTime = 0;
 					}
 			}
 		}
@@ -105,7 +108,7 @@ void Client::connections(Survivor* s/*, std::vector<Survivor>& survivors*/)
 			std::cout << "NULL!!" << std::endl;
 		}
 	}
-
+	
 }
 
 void Client::sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet)	
@@ -194,4 +197,9 @@ bool Client::getGameStart()
 	{
 		return false;
 	}
+}
+
+float Client::getElapsedTime()
+{
+	return elapsedTime;
 }

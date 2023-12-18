@@ -51,10 +51,12 @@ void Survivor::handleInput(float dt)
 
 	if (updateTimer.getElapsedTime().asMilliseconds() >= sendInterval.asMilliseconds())
 	{
-		if ((rand() % 100) < 60) {
-			// send movement to server
+		// send movement to server
+		if ((rand() % 100) < 30)
+		{
 			sf::Packet packet;
-			packet << clientID << getPosition().x << getPosition().y << dt;
+			//std::cout << "Time: " << client->getElapsedTime() << std::endl;
+			packet << clientID << getPosition().x << getPosition().y << client->getElapsedTime();
 			client->sendUDPPacket(client->udpSocket, packet);
 			updateTimer.restart();
 			//std::cout << "sending position" << std::endl;
@@ -65,7 +67,7 @@ void Survivor::handleInput(float dt)
 
 void Survivor::update(float dt)
 {
-
+	
 }
 
 void Survivor::collisionResponse(GameObject* collider, float dt)
