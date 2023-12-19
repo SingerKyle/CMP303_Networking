@@ -109,7 +109,7 @@ int main()
 	// Game Loop
 	while (window.isOpen())
 	{
-		//window.clear();
+		window.clear();
 		
 		//Process window events
 		windowProcess(&window, &input);

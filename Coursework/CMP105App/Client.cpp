@@ -2,9 +2,12 @@
 
 #include "NewLevel.h"
 
-Client::Client(std::string serverAddress, unsigned short serverPort, std::vector<Survivor*>& survivors) :serverAddress(serverAddress), serverPort(serverPort), levelSurvivors(survivors)
+Client::Client(unsigned short serverPort, std::vector<Survivor*>& survivors) : serverPort(serverPort), levelSurvivors(survivors)
 {
-
+	// Enter IP for server here:
+	std::cout << "Enter Server IP Address ";
+	std::cin >> serverAddress;
+	
 	if (tcpSocket.connect(serverAddress, serverPort) != sf::Socket::Status::Done)
 	{
 		std::cout << "Error connecting to server (TCP)" << std::endl;
@@ -14,19 +17,23 @@ Client::Client(std::string serverAddress, unsigned short serverPort, std::vector
 	{
 		std::cout << "Error connecting to server (UDP)" << std::endl;
 	}
-
+	
+	
 	// send UDP port to server
 	sf::Packet packet;
 	int code = 1;
 	packet << code;
-	packet << udpSocket.getLocalPort();
+	packet << udpSocket.getLocalPort() << clientAddress.getLocalAddress().toString();
 	sendTCPPacket(tcpSocket, packet);
 	std::cout << "Sent Port " << udpSocket.getLocalPort() << " to server" << std::endl;
 
+	// Set blocking for asynchronous I/O - doesn't block game when waiting
 	tcpSocket.setBlocking(false);
 	udpSocket.setBlocking(false);
 	selector.add(tcpSocket);
 	selector.add(udpSocket);
+
+	updateTimer.restart();
 
 }
 
@@ -74,7 +81,14 @@ void Client::connections(Survivor* s, float dt)
 					int ID;
 					tcpPacket >> ID;
 					std::cout << ID << " Has died" << std::endl;
-					//levelSurvivors.erase(levelSurvivors.begin() + ID);
+					Survivor* survivor = getSurvivorID(ID);
+					auto it = std::find(levelSurvivors.begin(), levelSurvivors.end(),
+				   survivor);
+ 
+					if (it != levelSurvivors.end())
+						{
+						levelSurvivors.erase(it);
+						}
 				}
 				else if (code == 4) // Receiving data about game start
 					{
@@ -89,13 +103,13 @@ void Client::connections(Survivor* s, float dt)
 	{//UDP Handling
 		sf::Packet udpPacket = receiveUDPPacket(udpSocket);
 
-		if (udpPacket != nullptr)
+		if (udpPacket.getDataSize() > 0)
 		{
 			int ID;
 			sf::Vector2f pos;
 			udpPacket >> ID;
 			udpPacket >> pos.x >> pos.y;
-
+			
 			Survivor* survivor = getSurvivorID(ID);
 			if (survivor != nullptr)
 			{
@@ -122,8 +136,9 @@ void Client::sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet)
 
 void Client::sendUDPPacket(sf::UdpSocket& udpSocket, sf::Packet& packet)
 {
-	if(udpSocket.send(packet, serverAddress, 54000) != sf::Socket::Done)
+	if(udpSocket.send(packet, serverAddress.toString(), 54000) != sf::Socket::Done)
 	{
+		std::cout << serverAddress;
 		std::cout << "UDP Send Error: Failed to send to server" << std::endl;
 	}
 }

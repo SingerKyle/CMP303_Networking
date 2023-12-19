@@ -10,7 +10,7 @@ NewLevel::NewLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManage
 	gameState = gs;
 	audio = aud;
 
-	client = new Client("Localhost", 53000, otherPlayers);
+	client = new Client(53000, otherPlayers);
 
 	// initialise game objects
 	if (!font.loadFromFile("font/Ye Olde Oak.ttf"))
@@ -56,8 +56,7 @@ void NewLevel::handleInput(float dt)
 {
 	Back.handleInput(dt, *input, MySurvivor->getPosition());
 	MySurvivor->handleInput(dt);
-
-		
+	
 }
 
 // Update game objects
@@ -73,9 +72,25 @@ void NewLevel::update(float dt)
 		{
 			MySurvivor->collisionResponse(otherPlayers[i], dt);
 		}
-		else
+
+		if (MySurvivor->getPosition().y <= 0 + window->getSize().y / 2)
 		{
-			
+			MySurvivor->setPosition(MySurvivor->getPosition().x, window->getSize().y / 2);
+		}
+
+		if (MySurvivor->getPosition().x <= 0 + window->getSize().x / 2)
+		{
+			MySurvivor->setPosition(window->getSize().x / 2, MySurvivor->getPosition().y);
+		}
+
+		if (MySurvivor->getPosition().x >= 16000 - window->getSize().x / 2)
+		{
+			MySurvivor->setPosition(window->getSize().x / 2, MySurvivor->getPosition().y);
+		}
+
+		if (MySurvivor->getPosition().y >= 16000 - window->getSize().y / 2)
+		{
+			MySurvivor->setPosition(MySurvivor->getPosition().x, window->getSize().y / 2);
 		}
 	}
 
@@ -83,6 +98,10 @@ void NewLevel::update(float dt)
 	{
 		gameState->setCurrentState(State::MENU);
 	}
+
+	sf::Vector2f Pos = Back.View.getCenter(); // sets position of text and score based off the center of camera
+	score.setPosition(Pos.x - window->getSize().x / 2 + 50, Pos.y - window->getSize().y / 2);
+	scoreOverlay();
 }
 
 // Render level
@@ -131,5 +150,7 @@ void NewLevel::TimerStart()
 
 void NewLevel::scoreOverlay()
 {
-	score.setString(std::to_string(MySurvivor->getScore())); // updates score by getting player score and changing value on screen
+	std::string scoreString = "Score: ";
+	scoreString += std::to_string(MySurvivor->getScore());
+	score.setString(scoreString); // updates score by getting player score and changing value on screen
 }

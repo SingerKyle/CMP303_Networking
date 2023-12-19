@@ -52,15 +52,15 @@ void Survivor::handleInput(float dt)
 	if (updateTimer.getElapsedTime().asMilliseconds() >= sendInterval.asMilliseconds())
 	{
 		// send movement to server
-		if ((rand() % 100) < 30)
-		{
+		//if ((rand() % 100) < 30)
+		//{
 			sf::Packet packet;
 			//std::cout << "Time: " << client->getElapsedTime() << std::endl;
 			packet << clientID << getPosition().x << getPosition().y << client->getElapsedTime();
 			client->sendUDPPacket(client->udpSocket, packet);
 			updateTimer.restart();
 			//std::cout << "sending position" << std::endl;
-		}
+		//}
 	}
 	
 }
@@ -113,6 +113,7 @@ void Survivor::collisionResponse(GameObject* collider, float dt)
 		int hitChance = rand() % 10 + 1;
 		if (hitChance > 5) // 50% chance for damage to be taken
 		{
+			setScore(20);
 			setHealth(20);
 			// send message to server
 			sf::Packet packet;
@@ -144,7 +145,7 @@ void Survivor::setClientID(int ID)
 
 void Survivor::setScore(int score)
 {
-
+	score += score;
 }
 
 void Survivor::setHealth(int value)

@@ -42,6 +42,7 @@ public:
 	sf::TcpSocket* tcpSocket;
 	int ID;
 	unsigned short UDPPort;
+	std::string clientAddress;
 	float timeSinceLastMessage;
 	SurvivorInfo* survivor;
 };
@@ -104,6 +105,9 @@ protected: // Variables
 	// Timer
 	sf::Time timer;
 	float elapsedTime;
+
+	// IP Address
+	sf::IpAddress serverAddress;
 
 	// Code to send so client / server knows what they're receiving
 //	int code;

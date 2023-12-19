@@ -8,7 +8,7 @@
 class Client
 {
 public:
-    Client(std::string serverAddress, unsigned short serverPort, std::vector<Survivor*>& survivors);
+    Client(unsigned short serverPort, std::vector<Survivor*>& survivors);
     ~Client();
 
     // Function to connect to the server
@@ -35,12 +35,15 @@ public:
     sf::UdpSocket udpSocket;
     //UDP Variables
     sf::IpAddress serverAddress;
+    sf::IpAddress clientAddress;
     unsigned short serverPort;
     bool disconnect = false;
     bool readyToStart = false;
     bool allReady = false;
     float elapsedTime = 0;
-
+    //Variables - Timer
+    sf::Clock updateTimer;
+    sf::Time sendInterval = sf::milliseconds(45); // Send survivor position every 10 milliseconds
     // Add vector for players
     std::vector<Survivor*>& levelSurvivors;
 };
