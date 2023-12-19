@@ -30,7 +30,7 @@ GameServer::GameServer() : readyPlayerTrack(0), maxPlayerCount(4)
 	}
 
 	listener.setBlocking(false);
-	udpSocket->setBlocking(false);
+	//udpSocket->setBlocking(false);
 
 	selector.add(listener);
 	selector.add(*udpSocket);
@@ -173,10 +173,8 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 					udpPacket >> ID >> newMessage.position.x >> newMessage.position.y >> newMessage.deltaTime;
 
 					Client* client = getClientID(ID);
-					if(client != nullptr)
-					{
-						client->survivor->position = newMessage.position;
-					}
+
+					client->survivor->position = newMessage.position;
 					
 					//std::cout << i << " " <<clients[i]->survivor->ID << "   " << clients[i]->survivor->position.x << "   " << clients[i]->survivor->position.y << std::endl;
 					sf::Packet udpSendPacket;
@@ -313,7 +311,6 @@ Client* GameServer::getClientID(int ID)
 		{
 			return clients[i];
 		}
-		return nullptr;
 	}
 	return nullptr;
 }
