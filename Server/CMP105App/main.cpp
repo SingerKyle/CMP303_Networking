@@ -77,7 +77,7 @@ int main()
 
 	sf::Clock gameTime;
 	float deltaTime;
-	
+
 	while (true)
 	{
 		deltaTime = gameTime.restart().asSeconds();

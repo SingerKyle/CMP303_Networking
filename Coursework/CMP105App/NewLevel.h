@@ -10,7 +10,7 @@
 #include "EnemyManager.h"
 #include "Client.h"
 
-class NewLevel : BaseLevel 
+class NewLevel : BaseLevel
 {
 public:
 	NewLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManager* aud);
@@ -47,7 +47,7 @@ private:
 	EnemyManager eManager; // enemy manager
 
 	sf::Texture back_Texture;
-//NETWORK
+	//NETWORK
 	Client* client;
 
 	std::vector<Survivor*> otherPlayers;

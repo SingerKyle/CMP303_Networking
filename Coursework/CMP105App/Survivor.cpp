@@ -27,22 +27,22 @@ void Survivor::handleInput(float dt)
 {
 	if (input->isKeyDown(sf::Keyboard::D))
 	{
-		velocity.x = 2.0f * scale; 
+		velocity.x = 2.0f * scale;
 		move(velocity.x * dt, 0);
 	}
-	
+
 	if (input->isKeyDown(sf::Keyboard::A))
 	{
 		velocity.x = -2.0f * scale;
 		move(velocity.x * dt, 0);
 	}
-	
+
 	if (input->isKeyDown(sf::Keyboard::W))
 	{
-		velocity.y = -2.0f * scale; 
+		velocity.y = -2.0f * scale;
 		move(0, velocity.y * dt);
 	}
-	
+
 	if (input->isKeyDown(sf::Keyboard::S))
 	{
 		velocity.y = 2.0f * scale;
@@ -54,20 +54,20 @@ void Survivor::handleInput(float dt)
 		// send movement to server
 		//if ((rand() % 100) < 30)
 		//{
-			sf::Packet packet;
-			//std::cout << "Time: " << client->getElapsedTime() << std::endl;
-			packet << clientID << getPosition().x << getPosition().y << client->getElapsedTime();
-			client->sendUDPPacket(client->udpSocket, packet);
-			updateTimer.restart();
-			//std::cout << "sending position" << std::endl;
-		//}
+		sf::Packet packet;
+		//std::cout << "Time: " << client->getElapsedTime() << std::endl;
+		packet << clientID << getPosition().x << getPosition().y << client->getElapsedTime();
+		client->sendUDPPacket(client->udpSocket, packet);
+		updateTimer.restart();
+		//std::cout << "sending position" << std::endl;
+	//}
 	}
-	
+
 }
 
 void Survivor::update(float dt)
 {
-	
+
 }
 
 void Survivor::collisionResponse(GameObject* collider, float dt)
@@ -103,10 +103,10 @@ void Survivor::collisionResponse(GameObject* collider, float dt)
 			std::cout << "right" << std::endl;
 			setPosition(collider->getPosition().x + getSize().x, getPosition().y);
 			stepVelocity = sf::Vector2f(0, 0);
-			
+
 		}
 	}
-	
+
 	if (attackClock.getElapsedTime().asSeconds() >= attackTimerMax.asSeconds()) // if the time that has passed in seconds is more than the max time in seconds set in constructor then restart clock
 	{
 		attackClock.restart();

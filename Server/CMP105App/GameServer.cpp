@@ -41,7 +41,7 @@ GameServer::GameServer() : readyPlayerTrack(0), maxPlayerCount(4)
 void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 {
 	// Wait for a socket to become active / a new connection is incoming
-	if (selector.wait(sf::milliseconds(10))) 
+	if (selector.wait(sf::milliseconds(10)))
 	{
 		if (selector.isReady(listener)) // if the listen socket is ready to accept new connection
 		{
@@ -52,9 +52,9 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 
 			if (listener.accept(*newClient->tcpSocket) == sf::Socket::Status::Done)
 			{
-				
+
 				std::cout << "Client Connected!" << std::endl;
-				
+
 				tcpSocket->setBlocking(false);
 				selector.add(*tcpSocket);
 				// Give the client an ID
@@ -69,7 +69,7 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 				code = 1;
 				newClient->survivor->position = GenerateStartPos();
 				std::cout << "Generated Random Position: " << newClient->survivor->position.x << "   " << newClient->survivor->position.y << std::endl;
-				packet << code; 
+				packet << code;
 				packet << newClient->survivor->ID << newClient->survivor->position.x << newClient->survivor->position.y;
 				TCPSend(*newClient->tcpSocket, packet);
 			}
@@ -90,16 +90,16 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 					if (newClient->ID != clients[i]->ID)
 					{
 						code = 2;
-						
+
 						std::cout << "sending data to client " << clients[i]->ID << std::endl;
-						
+
 						sf::Packet Packet;
 						Packet << 2 << clients[i]->ID << clients[i]->survivor->position.x << clients[i]->survivor->position.y;
 
 						TCPSend(*newClient->tcpSocket, Packet);
 					}
-					
- 				}
+
+				}
 			}
 		}
 		else
@@ -109,27 +109,27 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 				sf::Packet tcpPacket, udpPacket;
 				// deal with TCP receiving / sending first
 				tcpPacket = receiveTCPPacket(*clients[i]->tcpSocket);
-				if(tcpPacket != nullptr)
+				if (tcpPacket != nullptr)
 				{
 					int code = 0;
 					tcpPacket >> code;
 					if (code == 0)
 					{
-						
+
 					}
 					if (code == 1) // Server is sending UDP port
 					{
 						tcpPacket >> clients[i]->UDPPort; // client sent ID code and UDP port
 						tcpPacket >> clients[i]->clientAddress;
-					//	std::cout << "Client " << i << " has port: " << clients[i]->UDPPort <<std::endl;
+						//	std::cout << "Client " << i << " has port: " << clients[i]->UDPPort <<std::endl;
 					}
 					else if (code == 2) // clients are sending ready signal
 					{
 						bool isReadyRec;
 						tcpPacket >> isReadyRec;
-						if(isReadyRec) // if ready is true
+						if (isReadyRec) // if ready is true
 						{
-							clients[i]->survivor->isReady =true;
+							clients[i]->survivor->isReady = true;
 							readyPlayerTrack++;
 							std::cout << "Player " << i << " ready!" << std::endl;
 						}
@@ -157,15 +157,15 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 							sf::Packet packet;
 							packet << 3 << clients[i]->survivor->ID;
 							TCPSend(*clients[i]->tcpSocket, packet);
-							//disconnectClient(clients[i]);
+							disconnectClient(clients[i]);
 						}
 					}
-					
+
 				}
-				
+
 				// Then check UDP receiving / sending
 				udpPacket = receiveUDPPacket(*clients[i]);
-				if(udpPacket.getDataSize() > 0)
+				if (udpPacket.getDataSize() > 0)
 				{
 					UDPMessage newMessage;
 					newMessage.isPredicted = false;
@@ -175,7 +175,7 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 					Client* client = getClientID(ID);
 
 					client->survivor->position = newMessage.position;
-					
+
 					//std::cout << i << " " <<clients[i]->survivor->ID << "   " << clients[i]->survivor->position.x << "   " << clients[i]->survivor->position.y << std::endl;
 					sf::Packet udpSendPacket;
 					udpSendPacket << client->survivor->ID << newMessage.position.x << newMessage.position.y;
@@ -249,9 +249,9 @@ void GameServer::setupConnections(float dt) // set up TCP and UDP connections
 				// predicted position
 				predictedPosition.x = clients[i]->survivor->receivedPackets.back().position.x + speed.x * dt;
 				predictedPosition.y = clients[i]->survivor->receivedPackets.back().position.y + speed.y * dt;
-				
 
-				
+
+
 				//Add to message struct
 				newMessage.deltaTime = clients[i]->survivor->receivedPackets.back().deltaTime;
 				newMessage.position = predictedPosition;
@@ -343,13 +343,13 @@ void GameServer::globalTCPSendMinusClient(sf::Packet packet, int id)
 
 void GameServer::TCPSend(sf::TcpSocket& tcpSocket, sf::Packet packet)
 {
-//	if (selector.isReady(listener))
-//	{
-		if (tcpSocket.send(packet) != sf::Socket::Done)
-		{
-			printf("TCP Send Error: Failed to send to client");
-		}
-//	}
+	//	if (selector.isReady(listener))
+	//	{
+	if (tcpSocket.send(packet) != sf::Socket::Done)
+	{
+		printf("TCP Send Error: Failed to send to client");
+	}
+	//	}
 }
 
 sf::Packet GameServer::receiveTCPPacket(sf::TcpSocket& tcpSocket)
@@ -385,7 +385,7 @@ void GameServer::globalUDPSendMinusClient(sf::Packet packet, int id)
 			}
 		}
 	}
-	
+
 }
 
 void GameServer::UDPSend(Client& client, sf::Packet packet)

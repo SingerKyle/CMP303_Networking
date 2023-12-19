@@ -7,7 +7,7 @@ Client::Client(unsigned short serverPort, std::vector<Survivor*>& survivors) : s
 	// Enter IP for server here:
 	std::cout << "Enter Server IP Address ";
 	std::cin >> serverAddress;
-	
+
 	if (tcpSocket.connect(serverAddress, serverPort) != sf::Socket::Status::Done)
 	{
 		std::cout << "Error connecting to server (TCP)" << std::endl;
@@ -17,8 +17,8 @@ Client::Client(unsigned short serverPort, std::vector<Survivor*>& survivors) : s
 	{
 		std::cout << "Error connecting to server (UDP)" << std::endl;
 	}
-	
-	
+
+
 	// send UDP port to server
 	sf::Packet packet;
 	int code = 1;
@@ -45,10 +45,10 @@ Client::~Client()
 void Client::connections(Survivor* s, float dt)
 {
 	elapsedTime += dt;
-	
-	if (selector.wait(sf::milliseconds(1))) 
+
+	if (selector.wait(sf::milliseconds(1)))
 	{
-		if (selector.isReady(tcpSocket)) 
+		if (selector.isReady(tcpSocket))
 		{//TCP Handling
 			sf::Packet tcpPacket = receiveTCPPacket(tcpSocket);
 			if (tcpPacket != nullptr)
@@ -83,22 +83,22 @@ void Client::connections(Survivor* s, float dt)
 					std::cout << ID << " Has died" << std::endl;
 					Survivor* survivor = getSurvivorID(ID);
 					auto it = std::find(levelSurvivors.begin(), levelSurvivors.end(),
-				   survivor);
- 
+						survivor);
+
 					if (it != levelSurvivors.end())
-						{
+					{
 						levelSurvivors.erase(it);
-						}
+					}
 				}
 				else if (code == 4) // Receiving data about game start
-					{
+				{
 					allReady = true;
 					elapsedTime = 0;
-					}
+				}
 			}
 		}
 	}
-	
+
 	if (selector.isReady(udpSocket))
 	{//UDP Handling
 		sf::Packet udpPacket = receiveUDPPacket(udpSocket);
@@ -109,7 +109,7 @@ void Client::connections(Survivor* s, float dt)
 			sf::Vector2f pos;
 			udpPacket >> ID;
 			udpPacket >> pos.x >> pos.y;
-			
+
 			Survivor* survivor = getSurvivorID(ID);
 			if (survivor != nullptr)
 			{
@@ -122,12 +122,12 @@ void Client::connections(Survivor* s, float dt)
 			std::cout << "NULL!!" << std::endl;
 		}
 	}
-	
+
 }
 
-void Client::sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet)	
+void Client::sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet)
 {
-	if(tcpSocket.send(packet) != sf::Socket::Done)
+	if (tcpSocket.send(packet) != sf::Socket::Done)
 	{
 		std::cout << "TCP Send Error: Failed to send to server" << std::endl;
 	}
@@ -136,7 +136,7 @@ void Client::sendTCPPacket(sf::TcpSocket& tcpSocket, sf::Packet& packet)
 
 void Client::sendUDPPacket(sf::UdpSocket& udpSocket, sf::Packet& packet)
 {
-	if(udpSocket.send(packet, serverAddress.toString(), 54000) != sf::Socket::Done)
+	if (udpSocket.send(packet, serverAddress.toString(), 54000) != sf::Socket::Done)
 	{
 		std::cout << serverAddress;
 		std::cout << "UDP Send Error: Failed to send to server" << std::endl;
@@ -147,7 +147,7 @@ sf::Packet Client::receiveTCPPacket(sf::TcpSocket& tcpSocket)
 {
 	sf::Packet packet;
 
-	if(selector.isReady(tcpSocket))
+	if (selector.isReady(tcpSocket))
 	{
 		if (tcpSocket.receive(packet) != sf::Socket::Done)
 		{
@@ -164,12 +164,12 @@ sf::Packet Client::receiveUDPPacket(sf::UdpSocket& udpSocket)
 {
 	sf::Packet packet;
 
-	if(selector.isReady(udpSocket))
+	if (selector.isReady(udpSocket))
 	{
 		sf::IpAddress serverAddress;
 		unsigned short serverPort;
 
-		if(udpSocket.receive(packet, serverAddress, serverPort) != sf::Socket::Done)
+		if (udpSocket.receive(packet, serverAddress, serverPort) != sf::Socket::Done)
 		{
 			std::cout << "UDP Failed: no receive" << std::endl;
 			return packet;
@@ -204,7 +204,7 @@ void Client::setReady(bool ready)
 
 bool Client::getGameStart()
 {
-	if(allReady == true)
+	if (allReady == true)
 	{
 		return true;
 	}

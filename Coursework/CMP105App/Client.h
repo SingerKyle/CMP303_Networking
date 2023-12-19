@@ -64,9 +64,9 @@ public:
 
 inline sf::Packet& operator << (sf::Packet& packet, Survivor& survivor)
 {
-	return packet << survivor.ID << survivor.position.x << survivor.position.y;
+    return packet << survivor.ID << survivor.position.x << survivor.position.y;
 }
 inline sf::Packet& operator >> (sf::Packet& packet, Survivor& survivor)
 {
-	return packet >> survivor.ID >> survivor.position.x >> survivor.position.y;
+    return packet >> survivor.ID >> survivor.position.x >> survivor.position.y;
 }*/

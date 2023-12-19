@@ -36,7 +36,7 @@ struct Client
 public:
 	Client(sf::TcpSocket* tcpSocket, SurvivorInfo* survivor)/*, sf::UdpSocket* udpSocket) */ : tcpSocket(tcpSocket), survivor(survivor)
 	{
-	
+
 	}
 
 	sf::TcpSocket* tcpSocket;

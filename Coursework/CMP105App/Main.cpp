@@ -87,18 +87,18 @@ int main()
 	AudioManager audioManager;
 	Input input;
 	GameState gameState;
-//	Level level(&window, &input, &gameState, &audioManager);
+	//	Level level(&window, &input, &gameState, &audioManager);
 	NewLevel newlevel(&window, &input, &gameState, &audioManager);
 	Main_Menu Menu(&window, &input, &gameState, &audioManager);
 	lobby Lobby(&window, &input, &gameState, &audioManager);
-//	pause_Menu pause(&window, &input, &gameState, &audioManager);
+	//	pause_Menu pause(&window, &input, &gameState, &audioManager);
 	controls controls(&window, &input, &gameState, &audioManager);
-//	Death Death(&window, &input, &gameState, &audioManager);
-//	Win Win(&window, &input, &gameState, &audioManager);
-//	Credits Credits(&window, &input, &gameState, &audioManager);
-	// networks
+	//	Death Death(&window, &input, &gameState, &audioManager);
+	//	Win Win(&window, &input, &gameState, &audioManager);
+	//	Credits Credits(&window, &input, &gameState, &audioManager);
+		// networks
 
-	// Initialise objects for delta time
+		// Initialise objects for delta time
 	sf::Clock clock;
 	float deltaTime;
 
@@ -110,7 +110,7 @@ int main()
 	while (window.isOpen())
 	{
 		window.clear();
-		
+
 		//Process window events
 		windowProcess(&window, &input);
 
@@ -126,7 +126,7 @@ int main()
 			Menu.handleInput(deltaTime);
 			Menu.update(deltaTime);
 			Menu.render();
-//			level.TimerStart();
+			//			level.TimerStart();
 			break;
 		case State::LOBBY:
 			newlevel.readyToPlayGame(deltaTime);
@@ -140,14 +140,14 @@ int main()
 			newlevel.render();
 			break;
 		case State::PAUSE:
-//			pause.handleInput(deltaTime);
-//			pause.update(deltaTime);
-//			pause.render();
+			//			pause.handleInput(deltaTime);
+			//			pause.update(deltaTime);
+			//			pause.render();
 			break;
 		case State::CREDITS:
-//			Credits.handleInput(deltaTime);
-//			Credits.update(deltaTime);
-//			Credits.render();
+			//			Credits.handleInput(deltaTime);
+			//			Credits.update(deltaTime);
+			//			Credits.render();
 			break;
 		case State::CONTROLS:
 			controls.handleInput(deltaTime);
@@ -156,14 +156,14 @@ int main()
 
 			break;
 		case State::DEATH:
-//			Death.handleInput(deltaTime);
-//			Death.update(deltaTime);
-//			Death.render();
+			//			Death.handleInput(deltaTime);
+			//			Death.update(deltaTime);
+			//			Death.render();
 			break;
 		case State::WIN:
-//			Win.handleInput(deltaTime);
-//			Win.update(deltaTime);
-//			Win.render();
+			//			Win.handleInput(deltaTime);
+			//			Win.update(deltaTime);
+			//			Win.render();
 			break;
 		}
 

@@ -56,7 +56,7 @@ void NewLevel::handleInput(float dt)
 {
 	Back.handleInput(dt, *input, MySurvivor->getPosition());
 	MySurvivor->handleInput(dt);
-	
+
 }
 
 // Update game objects
@@ -94,7 +94,7 @@ void NewLevel::update(float dt)
 		}
 	}
 
-	if(client->disconnect == true)
+	if (client->disconnect == true)
 	{
 		gameState->setCurrentState(State::MENU);
 	}
@@ -112,9 +112,9 @@ void NewLevel::render()
 	window->draw(text);
 	window->draw(score);
 	window->draw(*MySurvivor);
-	for(int i = 0; i < otherPlayers.size(); i++)
+	for (int i = 0; i < otherPlayers.size(); i++)
 	{
-//		std::cout << otherPlayers[i]->getPosition().x << " " << otherPlayers[i]->getPosition().y << std::endl;
+		//		std::cout << otherPlayers[i]->getPosition().x << " " << otherPlayers[i]->getPosition().y << std::endl;
 		window->draw(*otherPlayers[i]);
 	}
 	//window->draw(Health);
