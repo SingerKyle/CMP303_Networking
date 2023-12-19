@@ -2,10 +2,12 @@
 #include "Framework/GameObject.h"
 #include "Framework/Animation.h"
 
+class Client;
+
 class Survivor : public GameObject
 {
 public:
-	Survivor();
+	Survivor(Client* client);
 	~Survivor();
 
 	//Variables
@@ -44,5 +46,9 @@ protected:
 	int clientID;
 	Animation idle;
 	Animation walk;
-};
 
+	// client variable
+	Client* client;
+	sf::Clock updateTimer;
+	sf::Time sendInterval = sf::milliseconds(45); // Send survivor position every 10 milliseconds
+};

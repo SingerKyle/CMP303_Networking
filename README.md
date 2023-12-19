@@ -1,4 +1,3 @@
 # CMP303_Networking
  
-
-https://codeshack.io/images-sprite-sheet-generator/
+https://gamedev.net/forums/topic/703622-smooth-multiplayer-player-movement-udp-network/5411822/

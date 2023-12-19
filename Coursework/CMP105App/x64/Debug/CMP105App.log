@@ -1,2 +1,8 @@
-﻿  NewLevel.cpp
-  CMP105App.vcxproj -> D:\University\Year_3\CMP303\CMP303_Networking\Coursework\x64\Debug\CMP105App.exe
+﻿  Client.cpp
+  Main.cpp
+E:\University\Year_3\CMP303\CMP303_Networking\Coursework\CMP105App\Main.cpp(84,27): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+  NewLevel.cpp
+  Survivor.cpp
+E:\University\Year_3\CMP303\CMP303_Networking\Coursework\CMP105App\Survivor.cpp(16,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Generating Code...
+  CMP105App.vcxproj -> E:\University\Year_3\CMP303\CMP303_Networking\Coursework\x64\Debug\CMP105App.exe

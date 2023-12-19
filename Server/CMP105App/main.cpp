@@ -75,10 +75,14 @@ int main()
 {
 	GameServer* server = new GameServer();
 
+	sf::Clock gameTime;
+	float deltaTime;
+
 	while (true)
 	{
+		deltaTime = gameTime.restart().asSeconds();
 		//std::cout << "HELLO!" << std::endl;
-		server->setupConnections();
+		server->setupConnections(deltaTime);
 	}
 
 }

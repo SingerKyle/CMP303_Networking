@@ -10,7 +10,7 @@
 #include "EnemyManager.h"
 #include "Client.h"
 
-class NewLevel : BaseLevel 
+class NewLevel : BaseLevel
 {
 public:
 	NewLevel(sf::RenderWindow* hwnd, Input* in, GameState* gs, AudioManager* aud);
@@ -19,7 +19,7 @@ public:
 	void handleInput(float dt) override;
 	void update(float dt);
 	void render();
-	void readyToPlayGame();
+	void readyToPlayGame(float dt);
 	void timer(); // updates on screen timer 
 	void TimerStart(); // restarts timer while not on level state or pause state
 	void scoreOverlay(); // overlays points per enemy kill
@@ -40,16 +40,22 @@ private:
 
 	BackGround Ground; // background
 
-	Survivor MySurvivor;
+	Survivor* MySurvivor;
 
 	playerHealth Health; // health bar
 
 	EnemyManager eManager; // enemy manager
 
 	sf::Texture back_Texture;
-//NETWORK
+	//NETWORK
 	Client* client;
 
-	std::vector<Survivor> otherPlayers;
-};
+	std::vector<Survivor*> otherPlayers;
 
+	// Chat messages
+	std::string message;
+	bool isTyping = false;
+
+	sf::Clock updateTimer;
+	sf::Time sendInterval = sf::milliseconds(10); // Send survivor position every 10 milliseconds
+};

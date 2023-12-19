@@ -4,6 +4,17 @@
 #include <vector>
 #include <iostream>
 
+#define SERVERIP "127.0.0.1"
+#define TCPPORT 53000
+#define UDPPORT 54000
+
+struct UDPMessage
+{
+	float deltaTime;
+	sf::Vector2f position;
+	bool isPredicted;
+};
+
 // Struct for a player that will hold information being sent to and from the server
 struct SurvivorInfo
 {
@@ -17,6 +28,7 @@ public:
 	int health;
 	sf::Vector2f position;
 	bool isReady = false;
+	std::vector<UDPMessage> receivedPackets;
 };
 
 struct Client
@@ -24,15 +36,27 @@ struct Client
 public:
 	Client(sf::TcpSocket* tcpSocket, SurvivorInfo* survivor)/*, sf::UdpSocket* udpSocket) */ : tcpSocket(tcpSocket), survivor(survivor)
 	{
-		
+
 	}
 
 	sf::TcpSocket* tcpSocket;
 	int ID;
 	unsigned short UDPPort;
-
+	std::string clientAddress;
+	float timeSinceLastMessage;
 	SurvivorInfo* survivor;
 };
+
+/*inline sf::Packet& operator << (sf::Packet& packet, const SurvivorInfo& newSurvivor)
+{
+	std::cout << "Sending: " << newSurvivor.ID << " " << newSurvivor.position.x << " " << newSurvivor.position.y << std::endl;
+	return packet << newSurvivor.ID << newSurvivor.position.x << newSurvivor.position.y;
+}
+inline sf::Packet& operator >> (sf::Packet& packet, SurvivorInfo& newSurvivor)
+{
+	return packet >> newSurvivor.ID >> newSurvivor.position.x >> newSurvivor.position.y;
+}*/
+
 
 class GameServer
 {
@@ -41,10 +65,11 @@ public:
 	~GameServer();
 
 	void initialise();
-	void setupConnections();
+	void setupConnections(float dt);
 	int allocateServerID();
 
 	void disconnectClient(Client* client);
+	Client* getClientID(int ID);
 
 	//TCP
 	void globalTCPSend(sf::Packet packet);
@@ -71,18 +96,20 @@ protected: // Variables
 	std::vector<Client*> clients;
 	std::vector<SurvivorInfo*> survivors;
 
-	// Setup IP and port addresses for server
-	sf::IpAddress serverIP = sf::IpAddress::getLocalAddress();
-	unsigned short tcpPort;
-	unsigned short udpPort;
-
 	// Keep track of all ready players
 	int readyPlayerTrack;
 
 	// Define max players
 	int maxPlayerCount;
 
+	// Timer
+	sf::Time timer;
+	float elapsedTime;
+
+	// IP Address
+	sf::IpAddress serverAddress;
+
 	// Code to send so client / server knows what they're receiving
-	int code;
+//	int code;
 };
 
